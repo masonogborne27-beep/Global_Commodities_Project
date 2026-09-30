@@ -1,0 +1,94 @@
+{
+  "routes": [
+    {
+      "id": "martinique-goree",
+      "from": "saint-pierre",
+      "to": "goree",
+      "type": "ocean",
+      "goods": ["TODO: goods carried"],
+      "revealedAt": "west-africa",
+      "bend": 0.2
+    },
+    {
+      "id": "goree-nantes",
+      "from": "goree",
+      "to": "nantes",
+      "type": "ocean",
+      "goods": ["TODO: goods carried"],
+      "revealedAt": "atlantic-ports",
+      "via": [[-21, 28], [-12, 45], [-5, 47.3]]
+    },
+    {
+      "id": "goree-bordeaux",
+      "from": "goree",
+      "to": "bordeaux",
+      "type": "ocean",
+      "goods": ["TODO: goods carried"],
+      "revealedAt": "atlantic-ports",
+      "via": [[-19, 28], [-11, 43.5], [-2.5, 45.5]]
+    },
+    {
+      "id": "bordeaux-bayonne",
+      "from": "bordeaux",
+      "to": "bayonne",
+      "type": "land",
+      "goods": ["TODO: goods carried"],
+      "revealedAt": "bayonne",
+      "bend": 0.15
+    },
+    {
+      "id": "bayonne-paris",
+      "from": "bayonne",
+      "to": "paris",
+      "type": "land",
+      "goods": ["TODO: goods carried"],
+      "revealedAt": "paris",
+      "bend": 0.15
+    },
+    {
+      "id": "paris-madrid",
+      "from": "paris",
+      "to": "madrid",
+      "type": "land",
+      "goods": ["TODO: goods carried"],
+      "revealedAt": "europe",
+      "bend": 0.15
+    },
+    {
+      "id": "madrid-seville",
+      "from": "madrid",
+      "to": "seville",
+      "type": "land",
+      "goods": ["TODO: goods carried"],
+      "revealedAt": "europe",
+      "bend": 0.15
+    },
+    {
+      "id": "paris-amsterdam",
+      "from": "paris",
+      "to": "amsterdam",
+      "type": "land",
+      "goods": ["TODO: goods carried"],
+      "revealedAt": "europe",
+      "bend": 0.15
+    },
+    {
+      "id": "paris-london",
+      "from": "paris",
+      "to": "london",
+      "type": "land",
+      "goods": ["TODO: goods carried"],
+      "revealedAt": "europe",
+      "bend": -0.15
+    },
+    {
+      "id": "paris-turin",
+      "from": "paris",
+      "to": "turin",
+      "type": "land",
+      "goods": ["TODO: goods carried"],
+      "revealedAt": "europe",
+      "bend": 0.15
+    }
+  ]
+}

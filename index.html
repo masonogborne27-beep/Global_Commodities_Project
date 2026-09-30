@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Cacao &amp; Empire</title>
+  <meta name="description" content="An interactive map of cacao, chocolate, and the French empire, 1450–1800.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Map -->
+  <main id="map" class="map">
+    <svg id="map-svg" class="map-svg" role="img" aria-label="Antique-style world map showing the stops and trade routes of the journey"></svg>
+    <svg id="routes-svg" class="routes-svg" aria-hidden="true" focusable="false">
+      <defs>
+        <marker id="arrow-ocean" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+          <path d="M0,1 L9,5 L0,9 Z" class="arrow-ocean"/>
+        </marker>
+        <marker id="arrow-land" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+          <path d="M0,1 L9,5 L0,9 Z" class="arrow-land"/>
+        </marker>
+        <symbol id="ship" viewBox="-16 -18 32 30" overflow="visible">
+          <path class="ship-sail" d="M1,-15 L1,0 L11,0 Q9,-8 1,-15 Z"/>
+          <path class="ship-sail" d="M-1,-12 L-1,0 L-9,0 Q-8,-6 -1,-12 Z"/>
+          <path class="ship-mast" d="M0,-17 L0,2"/>
+          <path class="ship-flag" d="M0,-17 L5,-15.5 L0,-14 Z"/>
+          <path class="ship-hull" d="M-14,1 L14,1 L10,8 L-10,8 Z"/>
+        </symbol>
+      </defs>
+      <g id="routes-layer"></g>
+      <g id="ships-layer"></g>
+    </svg>
+    <div id="markers" class="markers" role="group" aria-label="Journey stops"></div>
+  </main>
+
+  <!-- Decorations -->
+  <div class="paper-texture" aria-hidden="true"></div>
+  <svg class="compass" viewBox="-50 -50 100 100" aria-hidden="true" focusable="false">
+    <circle r="34" class="compass-ring"/>
+    <circle r="28" class="compass-ring thin"/>
+    <path class="compass-star" d="M0,-44 L6,-6 L0,0 Z M0,44 L-6,6 L0,0 Z M44,0 L6,6 L0,0 Z M-44,0 L-6,-6 L0,0 Z"/>
+    <path class="compass-star dark" d="M0,-44 L-6,-6 L0,0 Z M0,44 L6,6 L0,0 Z M44,0 L6,-6 L0,0 Z M-44,0 L-6,6 L0,0 Z"/>
+    <text y="-46" class="compass-n">N</text>
+  </svg>
+
+  <!-- Top bar -->
+  <header class="topbar">
+    <div class="year-badge" aria-live="polite">
+      <span class="year-badge-label">Year</span>
+      <span id="year" class="year-badge-value">1450</span>
+    </div>
+    <p id="topbar-title" class="topbar-title"></p>
+    <div class="topbar-actions">
+      <button id="overview-btn" class="btn btn-ghost" type="button" hidden>Overview</button>
+      <button id="sources-btn" class="btn btn-ghost" type="button">Sources</button>
+    </div>
+  </header>
+
+  <!-- Legend and hint -->
+  <div class="legend" aria-label="Map legend">
+    <div class="legend-row"><svg width="34" height="12" aria-hidden="true"><path d="M2,6 H32" class="legend-ocean"/></svg> Ocean route</div>
+    <div class="legend-row"><svg width="34" height="12" aria-hidden="true"><path d="M2,6 H32" class="legend-land"/></svg> Land route</div>
+    <div class="legend-row"><span class="legend-dot next" aria-hidden="true"></span> Next stop</div>
+    <div class="legend-row"><span class="legend-dot visited" aria-hidden="true"></span> Visited</div>
+  </div>
+  <p id="hint" class="hint" aria-live="polite" hidden></p>
+
+  <!-- Side panel / bottom sheet -->
+  <aside id="panel" class="panel" aria-labelledby="panel-title" inert>
+    <button id="panel-handle" class="panel-handle" type="button" aria-label="Resize panel"><span></span></button>
+    <button id="panel-close" class="panel-close" type="button" aria-label="Close panel">&times;</button>
+    <div id="panel-body" class="panel-body"></div>
+    <div id="panel-footer" class="panel-footer"></div>
+  </aside>
+
+  <!-- Title card -->
+  <section id="title-card" class="title-card" aria-labelledby="title-card-title">
+    <div class="title-card-inner">
+      <div class="title-ornament" aria-hidden="true">&#10086;</div>
+      <h1 id="title-card-title" class="title-card-title">Loading…</h1>
+      <p id="title-card-subtitle" class="title-card-subtitle"></p>
+      <div class="title-card-rule" aria-hidden="true"></div>
+      <p id="title-card-question" class="title-card-question"></p>
+      <p id="title-card-authors" class="title-card-authors"></p>
+      <div id="title-card-error" class="error-box" role="alert" hidden></div>
+      <button id="begin-btn" class="btn btn-primary btn-large" type="button" disabled>Begin the journey</button>
+    </div>
+  </section>
+
+  <!-- Sources dialog -->
+  <dialog id="sources-dialog" class="sources-dialog" aria-labelledby="sources-title">
+    <div class="dialog-head">
+      <h2 id="sources-title">Sources &amp; Image Credits</h2>
+      <button id="sources-close" class="panel-close static" type="button" aria-label="Close sources">&times;</button>
+    </div>
+    <div id="sources-body" class="dialog-body"></div>
+  </dialog>
+
+  <noscript><p class="noscript">This interactive map needs JavaScript turned on.</p></noscript>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
