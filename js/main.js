@@ -21,7 +21,10 @@
     finaleFlyMs: 2200,    // zoom out at the end
     finaleStaggerMs: 450, // delay between each stop's routes in the finale
     defaultBend: 0.2,     // how curved a route is if routes.json doesn't say
-    defaultZoom: 6        // max zoom for a stop if stops.json doesn't say
+    defaultZoom: 6,       // max zoom for a stop if stops.json doesn't say
+    sceneSettleMs: 900,   // pause on the close-up before diving into a stop's scene
+    sceneDiveMs: 1500,    // the dive from the map into the scene
+    sceneLeaveMs: 1100    // climbing back out of the scene to the map
   };
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -57,7 +60,14 @@
     begin: $('#begin-btn'),
     sourcesDialog: $('#sources-dialog'),
     sourcesBody: $('#sources-body'),
-    sourcesClose: $('#sources-close')
+    sourcesClose: $('#sources-close'),
+    scene: $('#scene'),
+    sceneStage: $('#scene-stage'),
+    sceneImg: $('#scene-img'),
+    sceneHotspots: $('#scene-hotspots'),
+    sceneBack: $('#scene-back'),
+    sceneCaption: $('#scene-caption'),
+    scenePopover: $('#scene-popover')
   };
 
   const state = {
@@ -82,6 +92,7 @@
     current: null,    // stop index, 'finale', or null
     finished: false,
     started: false,
+    scene: null,      // the stop whose scene is showing, or null
     nav: 0            // increases on every navigation, so older animations can stop
   };
 
@@ -274,6 +285,16 @@
       });
       // Extra points to include when zooming in close (see "frame" in the README).
       stop.frame = asArray(stop.frame).filter(validCoords).map((c) => [+c[0], +c[1]]);
+      // A picture the camera dives into after the close-up (see "Adding a scene" in the README).
+      const sc = stop.scene;
+      if (sc && typeof sc === 'object' && typeof sc.image === 'string' && sc.image.trim()) {
+        sc.hotspots = asArray(sc.hotspots)
+          .filter((h) => h && Number.isFinite(+h.x) && Number.isFinite(+h.y))
+          .map((h) => ({ ...h, x: clamp(+h.x, 0, 1), y: clamp(+h.y, 0, 1), label: h.label || 'TODO: label' }));
+      } else {
+        if (sc) console.warn(`stops.json: stop "${stop.id}" has a "scene" without an "image", so it is ignored.`);
+        stop.scene = null;
+      }
       stop.markers.forEach((m) => {
         state.markers.push(m);
         if (!state.markerById.has(m.id)) state.markerById.set(m.id, m);
@@ -403,6 +424,7 @@
     state.routes.forEach(computeRouteBase);
     if (window.CacaoDetail) CacaoDetail.reset();
     reframe();
+    layoutScene();
     prefetchAhead();
   }
 
@@ -730,6 +752,7 @@
       const plan = planStop(state.stops[next], next === state.reached + 1 && !state.finished);
       if (plan.lead) views.push(plan.lead);
       views.push(plan.closeUp);
+      preloadScene(state.stops[next]);
     } else if (next === state.stops.length) {
       views.push(finaleTransform());
     }
@@ -740,8 +763,11 @@
     const stop = state.stops[index];
     if (!stop || index > state.reached + 1) return;
     const token = ++state.nav;
+    await leaveScene(true);
+    if (token !== state.nav) return;
     const isNew = index === state.reached + 1 && !state.finished;
     const { own, closeUp, lead } = planStop(stop, isNew);
+    preloadScene(stop);
     if (window.CacaoDetail) CacaoDetail.prefetch([lead, closeUp].filter(Boolean));
     if (index > state.reached) state.reached = index;
     state.current = index;
@@ -774,12 +800,22 @@
     if (token !== state.nav) return;
 
     if (isNew && !lead) await drawRoutes();
+    if (token !== state.nav) return;
     // Give the arrival a moment to settle before drawing the next stop in the background.
     setTimeout(() => { if (token === state.nav) prefetchAhead(); }, 1200);
+
+    // Then keep going: dive from the map into this stop's picture.
+    if (stop.scene) {
+      await delay(ms(CONFIG.sceneSettleMs));
+      if (token !== state.nav) return;
+      await enterScene(stop, token);
+    }
   }
 
   async function goToFinale() {
     const token = ++state.nav;
+    await leaveScene(true);
+    if (token !== state.nav) return;
     state.reached = state.stops.length - 1;
     state.current = 'finale';
     state.finished = true;
@@ -810,6 +846,7 @@
 
   function goToOverview() {
     ++state.nav;
+    leaveScene(true);
     state.current = null;
     syncRoutes();
     highlightRoutes(null);
@@ -822,6 +859,7 @@
 
   function restart() {
     ++state.nav;
+    leaveScene(true);
     state.reached = -1;
     state.current = null;
     state.finished = false;
@@ -848,6 +886,258 @@
     const stop = state.stops[state.reached + 1] || state.stops[typeof state.current === 'number' ? state.current : 0];
     const m = stop && stop.markers[0];
     if (m) m.el.focus({ preventScroll: true });
+  }
+
+  /* ------------------------------------------------------------------------
+     Scene: a period picture the camera dives into after a stop's close-up
+     ------------------------------------------------------------------------ */
+
+  function preloadScene(stop) {
+    const sc = stop && stop.scene;
+    if (!sc || sc.loader) return;
+    const img = new Image();
+    sc.loader = new Promise((resolve) => {
+      img.onload = () => resolve(true);
+      img.onerror = () => { console.warn(`Scene image not found: ${sc.image}`); resolve(false); };
+    });
+    img.src = sc.image;
+    sc.img = img;
+  }
+
+  const sceneOrigin = (stop) => {
+    const m = stop.markers[0];
+    return m && m.base ? state.transform.apply(m.base) : [state.width / 2, state.height / 2];
+  };
+
+  // Sizes the picture to cover the screen and works out the slow drift ("pan").
+  function layoutScene() {
+    const stop = state.scene;
+    if (!stop) return;
+    const sc = stop.scene;
+    const nw = (sc.img && sc.img.naturalWidth) || 1600;
+    const nh = (sc.img && sc.img.naturalHeight) || 1000;
+    // Fill the part of the screen the panel doesn't cover, so every hotspot can be seen.
+    const r = viewRect(isPanelOpen());
+    const W = Math.max(120, r.x1 - r.x0);
+    const H = Math.max(120, r.y1 - r.y0);
+    const fit = Math.max(W / nw, H / nh);
+    const sw = nw * fit;
+    const sh = nh * fit;
+    const stage = els.sceneStage;
+    stage.style.width = `${sw}px`;
+    stage.style.height = `${sh}px`;
+    stage.style.left = `${r.x0 + W / 2}px`;
+    stage.style.top = `${r.y0 + H / 2}px`;
+    els.sceneCaption.style.bottom = `${state.height - r.y1 + 10}px`;
+
+    const pan = sc.pan || {};
+    const frac = (v, fallback) => (validCoords(v) ? [clamp(+v[0], 0, 1), clamp(+v[1], 0, 1)] : fallback);
+    const from = frac(pan.from, [0.5, 0.5]);
+    const to = frac(pan.to, from);
+    const zoom0 = Number.isFinite(pan.zoomFrom) ? clamp(pan.zoomFrom, 1, 2.5) : 1.08;
+    const zoom1 = Number.isFinite(pan.zoomTo) ? clamp(pan.zoomTo, 1, 2.5) : 1.2;
+    // Shift so the chosen point sits at the centre, without showing an edge.
+    const offset = (f, k) => [
+      clamp((0.5 - f[0]) * sw * k, -Math.max(0, (sw * k - W) / 2), Math.max(0, (sw * k - W) / 2)),
+      clamp((0.5 - f[1]) * sh * k, -Math.max(0, (sh * k - H) / 2), Math.max(0, (sh * k - H) / 2))
+    ];
+    // Soften the drift until every hotspot stays in view at both ends of it.
+    let s0 = zoom0;
+    let s1 = zoom1;
+    let x0, y0, x1, y1;
+    const inView = (k, tx, ty) => sc.hotspots.every((h) =>
+      Math.abs((h.x - 0.5) * sw * k + tx) <= W / 2 - 28 && Math.abs((h.y - 0.5) * sh * k + ty) <= H / 2 - 28);
+    for (let i = 0; i < 80; i++) {
+      [x0, y0] = offset(from, s0);
+      [x1, y1] = offset(to, s1);
+      if ((inView(s0, x0, y0) && inView(s1, x1, y1)) || (s0 === 1 && s1 === 1)) break;
+      s0 = Math.max(1, s0 - 0.02);
+      s1 = Math.max(1, s1 - 0.02);
+    }
+    stage.style.setProperty('--kb-x0', `${x0}px`);
+    stage.style.setProperty('--kb-y0', `${y0}px`);
+    stage.style.setProperty('--kb-s0', s0);
+    stage.style.setProperty('--kb-x1', `${x1}px`);
+    stage.style.setProperty('--kb-y1', `${y1}px`);
+    stage.style.setProperty('--kb-s1', s1);
+    stage.style.setProperty('--kb-dur', `${Number.isFinite(pan.seconds) ? clamp(pan.seconds, 5, 300) : 45}s`);
+  }
+
+  function renderSceneCaption(stop) {
+    const sc = stop.scene;
+    const bits = [];
+    if (sc.credit) bits.push(text(sc.credit));
+    if (sc.license) bits.push(bits.length ? ' · ' : '', text(sc.license));
+    if (sc.sourceUrl) bits.push(' ', el('a', { href: sc.sourceUrl, target: '_blank', rel: 'noopener noreferrer' }, 'Source'));
+    els.sceneCaption.replaceChildren(
+      el('span', { class: 'scene-kicker' }, sc.year ? `A scene from ${sc.year}` : 'A scene'),
+      el('span', { class: 'scene-title' }, sc.title || stop.place || ''),
+      bits.length ? el('span', { class: 'scene-credit' }, bits) : null
+    );
+  }
+
+  function renderHotspots(stop) {
+    els.sceneHotspots.replaceChildren(...stop.scene.hotspots.map((h) => {
+      const btn = el('button', {
+        type: 'button',
+        class: 'hotspot',
+        style: `left:${(h.x * 100).toFixed(2)}%;top:${(h.y * 100).toFixed(2)}%`,
+        'aria-label': h.label,
+        'aria-expanded': 'false'
+      }, el('span', { class: 'hotspot-name', 'aria-hidden': 'true' }, h.label));
+      btn.addEventListener('click', () => toggleHotspot(h, btn));
+      return btn;
+    }));
+  }
+
+  let hotspotFollow = null;
+
+  function toggleHotspot(h, btn) {
+    if (btn.classList.contains('is-open')) { closeHotspot(); return; }
+    closeHotspot();
+    const pop = els.scenePopover;
+    pop.replaceChildren(
+      el('button', { type: 'button', class: 'panel-close', 'aria-label': 'Close', onclick: closeHotspot }, '×'),
+      el('h4', null, h.label),
+      ...paragraphs(h.text || '')
+    );
+    pop.hidden = false;
+    btn.classList.add('is-open');
+    btn.setAttribute('aria-expanded', 'true');
+    pop.returnTo = btn;
+    const place = () => {
+      if (pop.hidden) return;
+      const r = btn.getBoundingClientRect();
+      const area = viewRect(isPanelOpen()); // keep the note out from under the panel
+      const pw = pop.offsetWidth;
+      const ph = pop.offsetHeight;
+      let left = r.right + 10;
+      if (left + pw > area.x1 - 10) left = r.left - pw - 10;
+      if (left < area.x0 + 10) left = area.x0 + 10;
+      let top = r.top - 12;
+      if (top + ph > area.y1 - 10) top = area.y1 - 10 - ph;
+      if (top < area.y0 + 8) top = area.y0 + 8;
+      pop.style.left = `${left}px`;
+      pop.style.top = `${top}px`;
+      hotspotFollow = requestAnimationFrame(place);
+    };
+    place();
+    pop.querySelector('h4').setAttribute('tabindex', '-1');
+    pop.querySelector('h4').focus({ preventScroll: true });
+  }
+
+  function focusAfterScene() {
+    const btn = els.panel.querySelector('.scene-section .btn');
+    if (isPanelOpen() && btn) btn.focus({ preventScroll: true });
+    else if (isPanelOpen()) focusPanel();
+    else focusNextMarker();
+  }
+
+  function closeHotspot() {
+    const pop = els.scenePopover;
+    if (hotspotFollow) cancelAnimationFrame(hotspotFollow);
+    hotspotFollow = null;
+    if (pop.hidden) return;
+    pop.hidden = true;
+    const open = els.sceneHotspots.querySelector('.hotspot.is-open');
+    if (open) { open.classList.remove('is-open'); open.setAttribute('aria-expanded', 'false'); }
+    if (pop.returnTo && document.contains(pop.returnTo)) pop.returnTo.focus({ preventScroll: true });
+    pop.returnTo = null;
+  }
+
+  async function enterScene(stop, token) {
+    const sc = stop.scene;
+    if (!sc || state.scene === stop) return;
+    preloadScene(stop);
+    state.scene = stop;
+    const ok = await sc.loader;
+    if (token !== state.nav || state.scene !== stop) return;
+    if (!ok) { state.scene = null; return; }
+
+    const scene = els.scene;
+    els.sceneImg.src = sc.image;
+    els.sceneImg.alt = sc.alt || '';
+    renderHotspots(stop);
+    renderSceneCaption(stop);
+    closeHotspot();
+    if (mobile.matches) els.panel.style.setProperty('--sheet-h', '34dvh');
+    layoutScene();
+
+    const [ox, oy] = sceneOrigin(stop);
+    scene.style.transformOrigin = `${ox}px ${oy}px`;
+    scene.classList.remove('is-leaving', 'is-panning');
+    scene.classList.add('is-active');
+    const dive = ms(CONFIG.sceneDiveMs);
+    if (dive) {
+      // Start tiny at the marker, then grow to fill the screen while the map
+      // keeps rushing in toward the same point.
+      scene.style.transition = 'none';
+      scene.style.transform = 'scale(0.04)';
+      scene.style.opacity = '0';
+      void scene.offsetWidth;
+      scene.style.transition = '';
+      scene.classList.add('is-diving');
+      scene.style.transform = 'scale(1)';
+      scene.style.opacity = '1';
+      const m = stop.markers[0];
+      if (m && m.base) {
+        const k = Math.min(state.transform.k * 2.4, state.kMax);
+        const t = d3.zoomIdentity.translate(ox - k * m.base[0], oy - k * m.base[1]).scale(k);
+        flyTo(state.zoom.constrain()(t, state.zoom.extent()(), state.zoom.translateExtent()), dive);
+      }
+      await delay(dive);
+      if (state.scene !== stop) return;
+      scene.classList.remove('is-diving');
+    } else {
+      scene.style.transform = '';
+      scene.style.opacity = '';
+    }
+    scene.classList.add('is-panning');
+    scene.inert = false;
+    scene.setAttribute('aria-hidden', 'false');
+    els.map.inert = true;
+    document.body.classList.add('in-scene');
+    layoutScene();
+    if (sc.year) setYear(sc.year);
+  }
+
+  // Back out of the scene to the map. "fast" is used when the tour moves on
+  // to another stop, so the scene just shrinks away while the camera leaves.
+  async function leaveScene(fast) {
+    const stop = state.scene;
+    if (!stop) return;
+    state.scene = null;
+    closeHotspot();
+    const scene = els.scene;
+    document.body.classList.remove('in-scene');
+    els.map.inert = !state.started;
+    scene.inert = true;
+    scene.setAttribute('aria-hidden', 'true');
+    scene.classList.remove('is-panning', 'is-diving');
+    if (mobile.matches) els.panel.style.setProperty('--sheet-h', '');
+    setYear(stop.yearLabel);
+
+    const dur = ms(fast ? 450 : CONFIG.sceneLeaveMs);
+    if (dur && scene.classList.contains('is-active')) {
+      const [ox, oy] = sceneOrigin(stop);
+      scene.style.transformOrigin = `${ox}px ${oy}px`;
+      scene.classList.add('is-leaving');
+      if (fast) scene.style.transition = `transform ${dur}ms ease-in, opacity ${dur * 0.7}ms ease`;
+      scene.style.transform = 'scale(0.04)';
+      scene.style.opacity = '0';
+      if (!fast) flyTo(fitTransform(stopFramePts(stop), stop.zoom, isPanelOpen()), dur);
+      await delay(dur);
+      if (state.scene) return; // a new scene started meanwhile
+    }
+    scene.classList.remove('is-active', 'is-leaving');
+    scene.style.transition = '';
+    scene.style.transform = '';
+    scene.style.opacity = '';
+    if (!fast) {
+      els.sceneImg.removeAttribute('src');
+      els.sceneHotspots.replaceChildren();
+      focusAfterScene();
+    }
   }
 
   /* ------------------------------------------------------------------------
@@ -889,6 +1179,7 @@
     document.body.classList.add('panel-open');
     hideHint();
     focusPanel();
+    layoutScene();
   }
 
   function closePanel(opts) {
@@ -896,6 +1187,7 @@
     els.panel.classList.remove('is-open');
     els.panel.inert = true;
     document.body.classList.remove('panel-open');
+    layoutScene();
     if (opts && opts.returnFocus && wasOpen) {
       showHint();
       focusNextMarker();
@@ -961,6 +1253,24 @@
     );
   }
 
+  function sceneSection(stop) {
+    const sc = stop.scene;
+    if (!sc) return null;
+    const creditBits = [];
+    if (sc.credit) creditBits.push('Credit: ', text(sc.credit));
+    if (sc.license) creditBits.push(creditBits.length ? ' · ' : '', 'License: ', text(sc.license));
+    if (sc.sourceUrl) creditBits.push(' ', el('a', { href: sc.sourceUrl, target: '_blank', rel: 'noopener noreferrer' }, 'Source'));
+    return el('section', { class: 'scene-section' },
+      el('h3', null, 'The scene'),
+      sc.caption ? el('p', null, sc.caption) : null,
+      creditBits.length ? el('p', { class: 'credit' }, creditBits) : null,
+      el('button', {
+        type: 'button',
+        class: 'btn btn-secondary',
+        onclick: () => { if (state.scene !== stop) enterScene(stop, state.nav); }
+      }, 'View the scene →'));
+  }
+
   function callout(title, body) {
     if (!body) return null;
     return el('aside', { class: 'callout' }, el('h3', null, title), paragraphs(body));
@@ -1001,6 +1311,7 @@
       el('div', { class: 'panel-rule', 'aria-hidden': 'true' }),
       el('div', { class: 'narrative' }, paragraphs(stop.narrative)),
       figures(stop.images),
+      sceneSection(stop),
       tradedSection(stop.traded),
       routesSection(routesFor(stop)),
       callout('Connection to globalization', stop.globalization),
@@ -1096,11 +1407,13 @@
       if (sources.length) {
         body.append(el('h4', null, 'Sources'), el('ol', { class: 'source-list' }, sources.map(sourceItem)));
       }
+      if (stop.scene) images.push({ ...stop.scene, src: stop.scene.image, caption: `Scene: ${stop.scene.title || stop.scene.image}` });
       if (images.length) {
         body.append(el('h4', null, 'Image credits'), el('ul', { class: 'source-list' }, images.map((img) =>
           el('li', null,
             text(img.caption || img.alt || img.src), ': ',
-            text(img.credit || 'credit missing'), ' (', text(img.license || 'license missing'), ')'))));
+            text(img.credit || 'credit missing'), ' (', text(img.license || 'license missing'), ')',
+            img.sourceUrl ? [' ', el('a', { href: img.sourceUrl, target: '_blank', rel: 'noopener noreferrer' }, 'Source')] : null))));
       }
       if (!sources.length && !images.length) body.append(el('p', null, 'No sources listed yet.'));
     });
@@ -1173,6 +1486,7 @@
       }
       const nearest = snaps.reduce((a, b) => (Math.abs(b - frac) < Math.abs(a - frac) ? b : a));
       setHeight(`${nearest * 100}dvh`);
+      setTimeout(layoutScene, 50);
     };
     handle.addEventListener('pointerup', end);
     handle.addEventListener('pointercancel', end);
@@ -1180,6 +1494,7 @@
       if (suppressClick) { suppressClick = false; return; }
       const frac = panel.offsetHeight / window.innerHeight;
       setHeight(frac > 0.7 ? '' : '88dvh');
+      setTimeout(layoutScene, 50);
     });
   }
 
@@ -1199,9 +1514,14 @@
     });
 
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && !els.sourcesDialog.open && isPanelOpen()) {
-        closePanel({ returnFocus: true });
-      }
+      if (e.key !== 'Escape' || els.sourcesDialog.open) return;
+      if (!els.scenePopover.hidden) closeHotspot();
+      else if (state.scene) leaveScene(false);
+      else if (isPanelOpen()) closePanel({ returnFocus: true });
+    });
+    els.sceneBack.addEventListener('click', () => leaveScene(false));
+    els.scene.addEventListener('click', (e) => {
+      if (!els.scenePopover.hidden && !els.scenePopover.contains(e.target) && !e.target.closest('.hotspot')) closeHotspot();
     });
 
     bindSheetDrag();

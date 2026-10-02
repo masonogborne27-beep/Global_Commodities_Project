@@ -56,6 +56,18 @@
     <div id="markers" class="markers" role="group" aria-label="Journey stops"></div>
   </main>
 
+  <!-- Scene: a full-screen period picture the camera dives into at some stops -->
+  <section id="scene" class="scene" aria-label="Scene" aria-hidden="true" inert>
+    <div id="scene-stage" class="scene-stage">
+      <img id="scene-img" class="scene-img" alt="" decoding="async">
+      <div id="scene-hotspots" class="scene-hotspots"></div>
+    </div>
+    <div class="scene-vignette" aria-hidden="true"></div>
+    <button id="scene-back" class="btn btn-ghost scene-back" type="button">← Back to the map</button>
+    <div id="scene-caption" class="scene-caption"></div>
+    <div id="scene-popover" class="scene-popover" role="dialog" aria-live="polite" hidden></div>
+  </section>
+
   <!-- Decorations -->
   <div class="paper-texture" aria-hidden="true"></div>
   <svg class="compass" viewBox="-50 -50 100 100" aria-hidden="true" focusable="false">
