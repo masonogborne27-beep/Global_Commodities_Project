@@ -22,8 +22,8 @@
     finaleStaggerMs: 450, // delay between each stop's routes in the finale
     defaultBend: 0.2,     // how curved a route is if routes.json doesn't say
     defaultZoom: 6,       // max zoom for a stop if stops.json doesn't say
-    sceneSettleMs: 900,   // pause on the close-up before diving into a stop's scene
-    sceneDiveMs: 1500,    // the dive from the map into the scene
+    sceneDiveMs: 1800,    // the dive from the map into the scene (continues straight on from the close-up)
+    sceneDiveZoom: 5,     // how much further the map zooms in during the dive
     sceneLeaveMs: 1100    // climbing back out of the scene to the map
   };
 
@@ -67,7 +67,8 @@
     sceneHotspots: $('#scene-hotspots'),
     sceneBack: $('#scene-back'),
     sceneCaption: $('#scene-caption'),
-    scenePopover: $('#scene-popover')
+    scenePopover: $('#scene-popover'),
+    sceneBackdrop: $('#scene-backdrop')
   };
 
   const state = {
@@ -496,7 +497,7 @@
     return state.zoom.constrain()(t, state.zoom.extent()(), state.zoom.translateExtent());
   }
 
-  function flyTo(transform, duration) {
+  function flyTo(transform, duration, ease) {
     return new Promise((resolve) => {
       const svg = d3.select(els.mapSvg);
       svg.interrupt();
@@ -507,7 +508,7 @@
       }
       svg.transition()
         .duration(duration)
-        .ease(d3.easeCubicInOut)
+        .ease(ease || d3.easeCubicInOut)
         .call(state.zoom.transform, transform)
         .on('end', resolve)
         .on('interrupt', resolve);
@@ -796,7 +797,13 @@
 
     renderStopPanel(stop);
     openPanel();
-    await flyTo(closeUp, ms(CONFIG.flyMs));
+
+    // A stop with a scene (and no routes still to draw) is one continuous move:
+    // the camera speeds into the island without stopping and dives straight
+    // into the picture.
+    const dive = stop.scene && !(isNew && !lead && own.length);
+    if (dive) preloadScene(stop);
+    await flyTo(closeUp, ms(CONFIG.flyMs), dive ? d3.easeCubicIn : null);
     if (token !== state.nav) return;
 
     if (isNew && !lead) await drawRoutes();
@@ -804,12 +811,7 @@
     // Give the arrival a moment to settle before drawing the next stop in the background.
     setTimeout(() => { if (token === state.nav) prefetchAhead(); }, 1200);
 
-    // Then keep going: dive from the map into this stop's picture.
-    if (stop.scene) {
-      await delay(ms(CONFIG.sceneSettleMs));
-      if (token !== state.nav) return;
-      await enterScene(stop, token);
-    }
+    if (stop.scene) await enterScene(stop, token);
   }
 
   async function goToFinale() {
@@ -898,15 +900,34 @@
     const img = new Image();
     sc.loader = new Promise((resolve) => {
       img.onload = () => resolve(true);
-      img.onerror = () => { console.warn(`Scene image not found: ${sc.image}`); resolve(false); };
+      img.onerror = () => {
+        // The picture isn't there yet: use the stand-in picture if there is one.
+        if (sc.fallbackImage && sc.image !== sc.fallbackImage) {
+          console.warn(`Scene image not found: ${sc.image}. Showing ${sc.fallbackImage} instead.`);
+          sc.image = sc.fallbackImage;
+          sc.isFallback = true;
+          img.src = sc.image;
+        } else {
+          console.warn(`Scene image not found: ${sc.image}`);
+          resolve(false);
+        }
+      };
     });
     img.src = sc.image;
     sc.img = img;
   }
 
-  const sceneOrigin = (stop) => {
+  // Where on the map the scene is: its own "coordinates" if given, otherwise the stop's marker.
+  function sceneBase(stop) {
+    const sc = stop.scene;
+    if (sc && validCoords(sc.coordinates)) return state.projection([+sc.coordinates[0], +sc.coordinates[1]]);
     const m = stop.markers[0];
-    return m && m.base ? state.transform.apply(m.base) : [state.width / 2, state.height / 2];
+    return m && m.base ? m.base : null;
+  }
+
+  const sceneOrigin = (stop) => {
+    const b = sceneBase(stop);
+    return b ? state.transform.apply(b) : [state.width / 2, state.height / 2];
   };
 
   // Sizes the picture to cover the screen and works out the slow drift ("pan").
@@ -920,7 +941,18 @@
     const r = viewRect(isPanelOpen());
     const W = Math.max(120, r.x1 - r.x0);
     const H = Math.max(120, r.y1 - r.y0);
-    const fit = Math.max(W / nw, H / nh);
+    // Fill the area if that keeps every hotspot in view; otherwise shrink just
+    // enough to show them all (the blurred backdrop fills the rest).
+    const cover = Math.max(W / nw, H / nh);
+    const contain = Math.min(W / nw, H / nh);
+    const hs = sc.hotspots;
+    let fit = cover;
+    if (hs.length) {
+      const spanX = Math.max(...hs.map((h) => h.x)) - Math.min(...hs.map((h) => h.x));
+      const spanY = Math.max(...hs.map((h) => h.y)) - Math.min(...hs.map((h) => h.y));
+      const margin = 0.07;
+      fit = Math.max(contain, Math.min(cover, W / (nw * (spanX + 2 * margin)), H / (nh * (spanY + 2 * margin))));
+    }
     const sw = nw * fit;
     const sh = nh * fit;
     const stage = els.sceneStage;
@@ -932,7 +964,11 @@
 
     const pan = sc.pan || {};
     const frac = (v, fallback) => (validCoords(v) ? [clamp(+v[0], 0, 1), clamp(+v[1], 0, 1)] : fallback);
-    const from = frac(pan.from, [0.5, 0.5]);
+    const centre = hs.length
+      ? [(Math.max(...hs.map((h) => h.x)) + Math.min(...hs.map((h) => h.x))) / 2,
+         (Math.max(...hs.map((h) => h.y)) + Math.min(...hs.map((h) => h.y))) / 2]
+      : [0.5, 0.5];
+    const from = frac(pan.from, centre);
     const to = frac(pan.to, from);
     const zoom0 = Number.isFinite(pan.zoomFrom) ? clamp(pan.zoomFrom, 1, 2.5) : 1.08;
     const zoom1 = Number.isFinite(pan.zoomTo) ? clamp(pan.zoomTo, 1, 2.5) : 1.2;
@@ -969,11 +1005,12 @@
     if (sc.credit) bits.push(text(sc.credit));
     if (sc.license) bits.push(bits.length ? ' · ' : '', text(sc.license));
     if (sc.sourceUrl) bits.push(' ', el('a', { href: sc.sourceUrl, target: '_blank', rel: 'noopener noreferrer' }, 'Source'));
-    els.sceneCaption.replaceChildren(
+    els.sceneCaption.replaceChildren(...[
       el('span', { class: 'scene-kicker' }, sc.year ? `A scene from ${sc.year}` : 'A scene'),
       el('span', { class: 'scene-title' }, sc.title || stop.place || ''),
-      bits.length ? el('span', { class: 'scene-credit' }, bits) : null
-    );
+      sc.note && !sc.isFallback ? el('span', { class: 'scene-note' }, sc.note) : null,
+      bits.length && !sc.isFallback ? el('span', { class: 'scene-credit' }, bits) : null
+    ].filter(Boolean));
   }
 
   function renderHotspots(stop) {
@@ -1057,6 +1094,7 @@
     const scene = els.scene;
     els.sceneImg.src = sc.image;
     els.sceneImg.alt = sc.alt || '';
+    els.sceneBackdrop.src = sc.image;
     renderHotspots(stop);
     renderSceneCaption(stop);
     closeHotspot();
@@ -1079,11 +1117,12 @@
       scene.classList.add('is-diving');
       scene.style.transform = 'scale(1)';
       scene.style.opacity = '1';
-      const m = stop.markers[0];
-      if (m && m.base) {
-        const k = Math.min(state.transform.k * 2.4, state.kMax);
-        const t = d3.zoomIdentity.translate(ox - k * m.base[0], oy - k * m.base[1]).scale(k);
-        flyTo(state.zoom.constrain()(t, state.zoom.extent()(), state.zoom.translateExtent()), dive);
+      // The map keeps rushing in toward the scene's spot, slowing as the picture takes over.
+      const b = sceneBase(stop);
+      if (b) {
+        const k = Math.min(state.transform.k * CONFIG.sceneDiveZoom, state.kMax);
+        const t = d3.zoomIdentity.translate(ox - k * b[0], oy - k * b[1]).scale(k);
+        flyTo(state.zoom.constrain()(t, state.zoom.extent()(), state.zoom.translateExtent()), dive, d3.easeCubicOut);
       }
       await delay(dive);
       if (state.scene !== stop) return;
@@ -1135,6 +1174,7 @@
     scene.style.opacity = '';
     if (!fast) {
       els.sceneImg.removeAttribute('src');
+      els.sceneBackdrop.removeAttribute('src');
       els.sceneHotspots.replaceChildren();
       focusAfterScene();
     }

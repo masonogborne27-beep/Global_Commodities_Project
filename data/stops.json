@@ -23,19 +23,25 @@
         { "id": "saint-pierre", "name": "Saint-Pierre", "coordinates": [-61.176, 14.743], "labelPosition": "right" }
       ],
       "scene": {
-        "image": "assets/images/placeholder-scene.svg",
-        "alt": "TODO: describe the picture for screen-reader users",
-        "title": "TODO: name of the scene, e.g. A cacao walk above Saint-Pierre",
-        "year": "c. TODO",
-        "caption": "TODO: one or two sentences about what this picture shows and who made it",
-        "credit": "TODO: artist, title of the print, book or collection",
-        "license": "TODO: e.g. Public domain",
+        "image": "assets/images/martinique-cacao-scene.jpg",
+        "fallbackImage": "assets/images/placeholder-scene.svg",
+        "coordinates": [-61.155, 14.765],
+        "alt": "Painted illustration of a cacao plantation on a hillside: enslaved African men and women pick cacao pods from the trunks of small trees, carry them in baskets on their heads, split them open, and spread the beans on a raised wooden drying platform, while a planter on horseback watches. The cone of Mont Pelée rises behind, with a plantation house below it.",
+        "title": "A cacao plantation above Saint-Pierre",
+        "year": "c. 1700",
+        "note": "AI illustration made for this project, not a historical source",
+        "caption": "TODO: one or two sentences about what this picture shows (and that it is a modern reconstruction)",
+        "credit": "AI-generated illustration (Canva), styled after William Clark, Ten Views in the Island of Antigua (1823)",
+        "license": "Made for this project",
         "sourceUrl": "",
-        "pan": { "from": [0.35, 0.6], "to": [0.62, 0.5], "zoomFrom": 1.12, "zoomTo": 1.28, "seconds": 45 },
+        "pan": { "from": [0.42, 0.58], "to": [0.62, 0.5], "zoomFrom": 1.04, "zoomTo": 1.16, "seconds": 50 },
         "hotspots": [
-          { "x": 0.17, "y": 0.68, "label": "TODO: e.g. Cacao trees", "text": "TODO: what the viewer should notice here" },
-          { "x": 0.74, "y": 0.86, "label": "TODO: e.g. Drying the beans", "text": "TODO: what the viewer should notice here" },
-          { "x": 0.33, "y": 0.9, "label": "TODO: e.g. Enslaved workers", "text": "TODO: what the viewer should notice here" }
+          { "x": 0.11, "y": 0.42, "label": "Cacao pods on the trunk", "text": "TODO: what the viewer should notice here" },
+          { "x": 0.35, "y": 0.47, "label": "Carrying the harvest", "text": "TODO: what the viewer should notice here" },
+          { "x": 0.31, "y": 0.8, "label": "Splitting the pods", "text": "TODO: what the viewer should notice here" },
+          { "x": 0.8, "y": 0.84, "label": "Drying the beans", "text": "TODO: what the viewer should notice here" },
+          { "x": 0.87, "y": 0.45, "label": "The planter", "text": "TODO: what the viewer should notice here" },
+          { "x": 0.66, "y": 0.22, "label": "Mont Pelée", "text": "TODO: what the viewer should notice here" }
         ]
       },
       "narrative": [
