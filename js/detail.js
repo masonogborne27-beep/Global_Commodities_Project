@@ -1,9 +1,7 @@
 /* ==========================================================================
    Detail layer
    --------------------------------------------------------------------------
-   While the camera is moving, the page shows the simple base map. When the
-   camera comes to rest, this file redraws the visible area on a canvas with
-   much more detail and fades it in:
+   Draws a detailed map on a canvas over the simple base map:
 
      - sharp coastlines (Natural Earth 10m land)
      - rivers (data/rivers.json)
@@ -11,6 +9,16 @@
        shallow water around the coasts (Terrain Tiles on AWS, loaded live)
      - antique-style water lines along the coasts
      - place labels (data/labels.json, plus river names)
+
+   The detailed map stays on screen while the camera moves. It is made of
+   "snapshots": pictures of particular views, drawn once and then moved and
+   scaled with the camera every frame.
+     - One wide snapshot covers the whole tour area, so there is always
+       detail underneath.
+     - Sharper snapshots of single views go on top. The next stop's views
+       are drawn ahead of time (while you read the panel), so the camera
+       arrives on a picture that is already finished.
+     - When the camera stops somewhere new, that view is drawn too.
 
    If anything here fails to load (for example, no internet for the terrain
    tiles), the map simply keeps working without that part.
@@ -24,6 +32,11 @@
   const TILE_CACHE_MAX = 90;  // tiles kept in memory
   const TILE_TIMEOUT_MS = 9000;
   const LAND10_ZOOM = 4.2;    // use the sharper 10m coastline from this map zoom level up
+  const OVERSCAN = 1.2;       // snapshots cover a bit more than the screen, with soft edges
+  const SNAP_DPR_MAX = 1.5;   // pixel density of snapshots (higher looks sharper, uses more memory)
+  const MAX_SNAPS = 4;        // sharp snapshots kept at once (plus the wide one)
+  const WIDE_AREA = 1.5;      // the wide snapshot covers this many overview screens
+  const WIDE_MAX_PX = 3600;   // largest side of the wide snapshot, in pixels
 
   const COLORS = {
     sea: '#a4b7b7',
@@ -38,12 +51,23 @@
   const LABEL_PRIORITY = { ocean: 1, sea: 2, island: 3, region: 3, mountain: 4, place: 5, river: 6 };
 
   let host = null;
-  let ctx = null;
-  let timer = null;
-  let token = 0;
+  let screen = null;          // the visible canvas
+  let ctx = null;             // whatever canvas is being drawn right now
   let scratch = null;
   let labelItems = [];
+  let shownLabels = [];
   const tileCache = new Map();
+
+  let gen = 0;                // goes up on resize; older snapshots no longer line up
+  let wide = null;
+  let widePending = false;
+  const snaps = [];
+  const pending = new Map();
+  let moving = false;
+  let restTimer = null;
+  const idleWaiters = [];
+  let prefetchRun = 0;
+  let heavy = Promise.resolve(); // heavy drawing work runs one piece at a time
 
   const data = { land50: [], land10: null, borders: null, rivers: [], riverLabels: [] };
 
@@ -55,7 +79,7 @@
 
   function init(options) {
     host = options;
-    ctx = host.canvas.getContext('2d');
+    screen = host.canvas.getContext('2d');
     data.land50 = splitPolygons(host.land50);
     data.borders = host.borders50;
     if (host.tileUrl == null) host.tileUrl = TILE_URL;
@@ -91,7 +115,9 @@
     results.forEach((r, i) => {
       if (r.status === 'rejected') console.warn(`Detail layer: part ${i + 1} did not load.`, r.reason);
     });
-    schedule(0);
+    // Redraw with the sharper coastlines, rivers and labels now that they are here.
+    snaps.length = 0;
+    if (!moving) onRest();
   }
 
   async function fetchJSON(url) {
@@ -123,23 +149,239 @@
   }
 
   /* ------------------------------------------------------------------------
-     Scheduling: hide while moving, redraw when still
+     Camera events (called from main.js)
      ------------------------------------------------------------------------ */
 
-  function hide() {
-    token++;
-    clearTimeout(timer);
-    if (!host) return;
-    host.canvas.classList.remove('is-ready');
-    host.labelsLayer.classList.remove('is-ready');
+  function setMoving(isMoving) {
+    moving = isMoving;
+    clearTimeout(restTimer);
+    if (isMoving) return;
+    idleWaiters.splice(0).forEach((resolve) => setTimeout(resolve, 30));
+    restTimer = setTimeout(onRest, 120);
   }
 
-  function schedule(delay) {
-    if (!host) return;
-    clearTimeout(timer);
-    timer = setTimeout(() => {
-      render().catch((err) => console.warn('Detail layer: could not draw this view.', err));
-    }, delay == null ? 140 : delay);
+  // Waits until the camera is still, so heavy drawing never stutters a camera move.
+  const whenIdle = () => (moving ? new Promise((resolve) => idleWaiters.push(resolve)) : Promise.resolve());
+
+  function onRest() {
+    if (!host || moving || !host.state.projection) return;
+    placeLabels();
+    host.labelsLayer.classList.add('is-ready');
+    ensureWide();
+    request(host.state.transform).catch((err) => console.warn('Detail layer: could not draw this view.', err));
+  }
+
+  // The window changed size: the base map changed, so start the pictures again.
+  function reset() {
+    gen++;
+    snaps.length = 0;
+    wide = null;
+    widePending = false;
+    pending.clear();
+    composite();
+  }
+
+  // Draw these camera positions ahead of time, one after another.
+  async function prefetch(transforms) {
+    const run = ++prefetchRun;
+    for (const t of transforms) {
+      if (run !== prefetchRun || !t) return;
+      try { await request(t); } catch (err) { /* skip this one */ }
+    }
+  }
+
+  /* ------------------------------------------------------------------------
+     Snapshots
+     ------------------------------------------------------------------------ */
+
+  function request(t) {
+    const s = host.state;
+    const W = s.width;
+    const H = s.height;
+    const key = `${gen}|${W}x${H}|${t.k.toPrecision(9)}|${t.x.toFixed(1)}|${t.y.toFixed(1)}`;
+    const found = snaps.find((sn) => sn.key === key);
+    if (found) {
+      found.used = performance.now();
+      return Promise.resolve(found);
+    }
+    if (pending.has(key)) return pending.get(key);
+
+    const myGen = gen;
+    const ox = (W * (OVERSCAN - 1)) / 2;
+    const oy = (H * (OVERSCAN - 1)) / 2;
+    const view = {
+      k: t.k, x: t.x + ox, y: t.y + oy,
+      W: Math.round(W * OVERSCAN), H: Math.round(H * OVERSCAN),
+      dpr: Math.min(window.devicePixelRatio || 1, SNAP_DPR_MAX),
+      feather: Math.min(ox, oy) * 0.9
+    };
+    const promise = renderSnapshot(view).then((snap) => {
+      if (!snap || myGen !== gen) return null;
+      snap.key = key;
+      snaps.push(snap);
+      evict();
+      composite();
+      return snap;
+    }).finally(() => pending.delete(key));
+    pending.set(key, promise);
+    return promise;
+  }
+
+  function evict() {
+    if (snaps.length <= MAX_SNAPS) return;
+    const current = host.state.transform;
+    // Never drop the picture of where the camera is now.
+    const keepable = snaps.filter((sn) => !(Math.abs(sn.k - current.k) < 1e-9 * current.k));
+    keepable.sort((a, b) => a.used - b.used);
+    while (snaps.length > MAX_SNAPS && keepable.length) snaps.splice(snaps.indexOf(keepable.shift()), 1);
+  }
+
+  // One big, lower-detail picture of the whole tour area.
+  function ensureWide() {
+    if (wide || widePending || !host.overviewTransform) return;
+    const t = host.overviewTransform();
+    if (!t) return;
+    widePending = true;
+    const myGen = gen;
+    const s = host.state;
+    const F = clamp(WIDE_MAX_PX / (WIDE_AREA * Math.max(s.width, s.height)), 1, 3);
+    const ox = ((WIDE_AREA - 1) / 2) * s.width * F;
+    const oy = ((WIDE_AREA - 1) / 2) * s.height * F;
+    const view = {
+      k: t.k * F, x: t.x * F + ox, y: t.y * F + oy,
+      W: Math.round(s.width * WIDE_AREA * F), H: Math.round(s.height * WIDE_AREA * F),
+      dpr: 1, step: 3, feather: Math.min(ox, oy) * 0.5
+    };
+    renderSnapshot(view).then((snap) => {
+      if (myGen !== gen) return;
+      wide = snap;
+      widePending = false;
+      composite();
+    }).catch(() => { widePending = false; });
+  }
+
+  async function renderSnapshot(view) {
+    const base = host.state.projection;
+    const tr = base.translate();
+    const make = (clip) => {
+      const p = d3.geoNaturalEarth1()
+        .scale(base.scale() * view.k)
+        .translate([view.x + view.k * tr[0], view.y + view.k * tr[1]]);
+      if (clip) p.clipExtent([[-30, -30], [view.W + 30, view.H + 30]]);
+      return p;
+    };
+    const proj = make(false);
+    const clipProj = make(true);
+    const z = zoomLevel(proj);
+    const bounds = viewBounds(proj, view.W, view.H);
+    const step = view.step || (view.W * view.H > 1.6e6 ? 3 : 2);
+
+    // Terrain first (it needs the network) ...
+    const t0 = performance.now();
+    let src = null;
+    try {
+      src = await loadElevation(bounds, z - Math.log2(step) + 0.3);
+    } catch (err) {
+      console.warn('Detail layer: terrain not loaded.', err);
+    }
+    const t1 = performance.now();
+
+    // ... then the drawing itself, once the camera is still and nothing else is drawing.
+    const job = heavy.then(whenIdle).then(async () => {
+      const t2 = performance.now();
+      const relief = src && src.grid.size
+        ? buildRelief(proj, view.W, view.H, step, src, metresPerPixel(proj, view.W, view.H))
+        : null;
+      // Let the page draw a frame between the two big steps.
+      await new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 0)));
+      await whenIdle();
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(view.W * view.dpr);
+      canvas.height = Math.round(view.H * view.dpr);
+      ctx = canvas.getContext('2d');
+      ctx.setTransform(view.dpr, 0, 0, view.dpr, 0, 0);
+      drawMap({ proj, clipProj, z, bounds, relief, W: view.W, H: view.H });
+      if (view.feather > 0) feather(view);
+      // Handy when tuning: how long the last picture took (milliseconds).
+      window.CacaoDetail.lastRender = {
+        tiles: Math.round(t1 - t0), draw: Math.round(performance.now() - t2), mapZoom: +z.toFixed(2)
+      };
+      return { canvas, k: view.k, x: view.x, y: view.y, W: view.W, H: view.H, dpr: view.dpr, used: performance.now() };
+    });
+    heavy = job.catch(() => {});
+    return job;
+  }
+
+  // Fades the edges of a snapshot so it blends into whatever is under it.
+  function feather(view) {
+    const f = view.feather;
+    const W = view.W;
+    const H = view.H;
+    ctx.save();
+    ctx.globalCompositeOperation = 'destination-out';
+    const edge = (x0, y0, x1, y1, rect) => {
+      const g = ctx.createLinearGradient(x0, y0, x1, y1);
+      g.addColorStop(0, 'rgba(0,0,0,1)');
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(...rect);
+    };
+    edge(0, 0, f, 0, [0, 0, f, H]);
+    edge(W, 0, W - f, 0, [W - f, 0, f, H]);
+    edge(0, 0, 0, f, [0, 0, W, f]);
+    edge(0, H, 0, H - f, [0, H - f, W, f]);
+    ctx.restore();
+  }
+
+  // Draws every snapshot that overlaps the screen, moved and scaled for the
+  // current camera; sharper pictures go on top. Runs on every camera frame.
+  function composite() {
+    if (!host || !screen) return;
+    const s = host.state;
+    if (!s.width) return;
+    const W = s.width;
+    const H = s.height;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const canvas = host.canvas;
+    const cw = Math.round(W * dpr);
+    const ch = Math.round(H * dpr);
+    if (canvas.width !== cw || canvas.height !== ch) {
+      canvas.width = cw;
+      canvas.height = ch;
+    }
+    screen.setTransform(1, 0, 0, 1, 0, 0);
+    screen.clearRect(0, 0, cw, ch);
+    screen.setTransform(dpr, 0, 0, dpr, 0, 0);
+    screen.imageSmoothingEnabled = true;
+    screen.imageSmoothingQuality = 'medium';
+
+    const t = s.transform;
+    const list = (wide ? [wide, ...snaps] : snaps.slice()).sort((a, b) => a.k * a.dpr - b.k * b.dpr);
+    let drew = false;
+    for (const snap of list) {
+      const sc = t.k / snap.k;
+      const dx = t.x - sc * snap.x;
+      const dy = t.y - sc * snap.y;
+      const dw = snap.W * sc;
+      const dh = snap.H * sc;
+      if (dw < 8 || dx > W || dy > H || dx + dw < 0 || dy + dh < 0) continue;
+      // Only copy the part of the snapshot that is on screen.
+      const sx0 = Math.max(0, -dx / sc);
+      const sy0 = Math.max(0, -dy / sc);
+      const sx1 = Math.min(snap.W, (W - dx) / sc);
+      const sy1 = Math.min(snap.H, (H - dy) / sc);
+      if (sx1 <= sx0 || sy1 <= sy0) continue;
+      screen.drawImage(snap.canvas,
+        sx0 * snap.dpr, sy0 * snap.dpr, (sx1 - sx0) * snap.dpr, (sy1 - sy0) * snap.dpr,
+        dx + sx0 * sc, dy + sy0 * sc, (sx1 - sx0) * sc, (sy1 - sy0) * sc);
+      if (sc > 0.5 && sc < 2) snap.used = performance.now();
+      drew = true;
+    }
+    if (drew) canvas.classList.add('is-ready');
+    // Once the wide picture is there, the plain base map underneath is fully
+    // covered, so stop drawing it (keeps camera moves smooth).
+    if (host.baseLayer) host.baseLayer.style.visibility = wide && drew ? 'hidden' : '';
+    positionLabels();
   }
 
   /* ------------------------------------------------------------------------
@@ -148,16 +390,14 @@
 
   // A projection that maps longitude/latitude straight to screen pixels for
   // the current camera position (the base map projection plus the zoom).
-  function viewProjection(clip) {
+  function viewProjection() {
     const s = host.state;
     const base = s.projection;
     const t = s.transform;
     const tr = base.translate();
-    const p = d3.geoNaturalEarth1()
+    return d3.geoNaturalEarth1()
       .scale(base.scale() * t.k)
       .translate([t.x + t.k * tr[0], t.y + t.k * tr[1]]);
-    if (clip) p.clipExtent([[-30, -30], [s.width + 30, s.height + 30]]);
-    return p;
   }
 
   // Map zoom level in the same units as web map tiles (z = 0 is the whole world in 256px).
@@ -376,51 +616,6 @@
      Drawing
      ------------------------------------------------------------------------ */
 
-  async function render() {
-    const my = ++token;
-    const t0 = performance.now();
-    const s = host.state;
-    if (!s.projection || !s.width) return;
-    const W = s.width;
-    const H = s.height;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-
-    const proj = viewProjection(false);
-    const clipProj = viewProjection(true);
-    const z = zoomLevel(proj);
-    const bounds = viewBounds(proj, W, H);
-    const step = W * H > 1.2e6 ? 3 : 2;
-
-    // Terrain first (it needs the network), then draw everything in one go.
-    let relief = null;
-    let t1 = performance.now();
-    try {
-      const src = await loadElevation(bounds, z - Math.log2(step) + 0.3);
-      if (my !== token) return;
-      t1 = performance.now();
-      if (src.grid.size) relief = buildRelief(proj, W, H, step, src, metresPerPixel(proj, W, H));
-    } catch (err) {
-      console.warn('Detail layer: terrain not drawn.', err);
-    }
-    if (my !== token) return;
-    const t2 = performance.now();
-
-    const canvas = host.canvas;
-    canvas.width = Math.round(W * dpr);
-    canvas.height = Math.round(H * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    drawMap({ proj, clipProj, z, bounds, relief, W, H });
-
-    canvas.classList.add('is-ready');
-    placeLabels(proj, z, W, H);
-    host.labelsLayer.classList.add('is-ready');
-    const t3 = performance.now();
-    // Handy when tuning: how long each part of the last redraw took (milliseconds).
-    window.CacaoDetail.lastRender = {
-      tiles: Math.round(t1 - t0), relief: Math.round(t2 - t1), draw: Math.round(t3 - t2), mapZoom: +z.toFixed(2)
-    };
-  }
-
   function drawMap({ proj, clipProj, z, bounds, relief, W, H }) {
     const geoPath = d3.geoPath(clipProj);
     const polys = data.land10 && z >= LAND10_ZOOM ? data.land10 : data.land50;
@@ -557,8 +752,12 @@
     return item.el;
   }
 
-  function placeLabels(proj, z, W, H) {
+  function placeLabels() {
     const s = host.state;
+    const W = s.width;
+    const H = s.height;
+    const proj = viewProjection();
+    const z = zoomLevel(proj);
     const kRel = s.transform.k / s.kScale;
     const candidates = [];
     // Labels stay inside the part of the map you can actually see (not under the panel or top bar).
@@ -603,6 +802,7 @@
     }
 
     const shown = new Set();
+    shownLabels = [];
     for (const c of candidates) {
       const size = LABEL_FONT[c.item.type];
       const spacing = c.item.type === 'ocean' ? 1.5 : c.item.type === 'sea' ? 1.35 : 1;
@@ -617,14 +817,29 @@
       taken.push(box);
       const node = labelElement(c.item);
       node.style.display = '';
-      node.style.transform = `translate(${c.x.toFixed(1)}px, ${c.y.toFixed(1)}px) translate(-50%, -50%) rotate(${c.angle.toFixed(1)}deg)`;
       shown.add(c.item);
+      shownLabels.push({ item: c.item, angle: c.angle });
     }
 
     for (const item of [...labelItems, ...data.riverLabels]) {
       if (!shown.has(item) && item.el) item.el.style.display = 'none';
     }
+    positionLabels();
   }
 
-  window.CacaoDetail = { init, hide, schedule };
+  // Keeps the labels attached to the map while the camera moves.
+  function positionLabels() {
+    if (!shownLabels.length) return;
+    const s = host.state;
+    const t = s.transform;
+    for (const { item, angle } of shownLabels) {
+      const m = s.projection(item.ll);
+      if (!m) continue;
+      const x = t.x + t.k * m[0];
+      const y = t.y + t.k * m[1];
+      item.el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) translate(-50%, -50%) rotate(${angle.toFixed(1)}deg)`;
+    }
+  }
+
+  window.CacaoDetail = { init, setMoving, frame: composite, reset, prefetch };
 })();
