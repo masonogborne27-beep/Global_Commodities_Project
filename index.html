@@ -14,6 +14,8 @@
   <!-- Map -->
   <main id="map" class="map">
     <svg id="map-svg" class="map-svg" role="img" aria-label="Antique-style world map showing the stops and trade routes of the journey"></svg>
+    <canvas id="detail-canvas" class="detail-canvas" aria-hidden="true"></canvas>
+    <div id="labels" class="labels" aria-hidden="true"></div>
     <svg id="routes-svg" class="routes-svg" aria-hidden="true" focusable="false">
       <defs>
         <marker id="arrow-ocean" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
@@ -22,12 +24,30 @@
         <marker id="arrow-land" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
           <path d="M0,1 L9,5 L0,9 Z" class="arrow-land"/>
         </marker>
-        <symbol id="ship" viewBox="-16 -18 32 30" overflow="visible">
-          <path class="ship-sail" d="M1,-15 L1,0 L11,0 Q9,-8 1,-15 Z"/>
-          <path class="ship-sail" d="M-1,-12 L-1,0 L-9,0 Q-8,-6 -1,-12 Z"/>
-          <path class="ship-mast" d="M0,-17 L0,2"/>
-          <path class="ship-flag" d="M0,-17 L5,-15.5 L0,-14 Z"/>
-          <path class="ship-hull" d="M-14,1 L14,1 L10,8 L-10,8 Z"/>
+        <!-- A three-masted, square-rigged merchant ship (bow to the right). Drawn
+             around the waterline at (0, 8); js/main.js moves, flips and scales it. -->
+        <symbol id="ship" viewBox="-34 -45 72 57" overflow="visible">
+          <path class="ship-wake" d="M-34 10.5 q3.5 -2.6 7 0 t7 0 t7 0 t7 0 t7 0 t7 0 t7 0 t7 0 t7 0"/>
+          <path class="ship-foam" d="M22 10 q4 -1.5 8 -3.8 M26 10.6 q4 -1 9 -2.2"/>
+          <path class="ship-rig" d="M15 -35 L35.5 -11.5 M0 -41 L15 -26 M-14 -33 L0 -27 M0 -33 L-8 -3 M0 -33 L9 -3 M15 -26 L10 -5.2 M15 -26 L21 -5.2 M-14 -27 L-19 -10 M-14 -27 L-9.5 -6"/>
+          <path class="ship-spar" d="M15 -5 V-35 M0 -3 V-43 M-14 -10 V-33 M24 -4.5 L36 -11.5 M6 -17 H24 M9 -26 H21 M11 -32 H19 M-10.5 -20 H10.5 M-8.5 -31 H8.5 M-5.5 -38 H5.5 M-6 -11 L-23 -31"/>
+          <path class="ship-sail" d="M-23 -31 L-6 -11 L-23 -12 Z"/>
+          <path class="ship-sail" d="M6.5 -17 H23.5 L24.8 -7 Q15 -4.2 5.2 -7 Z"/>
+          <path class="ship-sail" d="M9 -26 H21 L22.5 -18 Q15 -16 7.5 -18 Z"/>
+          <path class="ship-sail" d="M11 -32 H19 L20 -27 Q15 -25.8 10 -27 Z"/>
+          <path class="ship-sail" d="M-10 -20 H10 L11.5 -7 Q0 -3.8 -11.5 -7 Z"/>
+          <path class="ship-sail" d="M-8 -31 H8 L9.5 -21 Q0 -18.5 -9.5 -21 Z"/>
+          <path class="ship-sail" d="M-5 -38 H5 L6.5 -32 Q0 -30.5 -6.5 -32 Z"/>
+          <path class="ship-sail" d="M27.5 -6.4 L33 -9.8 L32 -3.5 Q29.5 -2.2 27 -3.5 Z"/>
+          <path class="ship-hull" d="M-24 -10 L-24 -8 C-27 -4 -26 1 -22 5 C-17 9.5 -8 10 0 10 C12 10 21 6 26 0.5 L29 -4.5 L23 -5.2 L14 -5.2 L14 -3 L-6 -3 L-6 -6 L-14 -6 L-14 -10 Z"/>
+          <path class="ship-lower" d="M-22 5 C-17 9.5 -8 10 0 10 C12 10 21 6 26 0.5 C20 4 8 6 -2 6.2 C-12 6.2 -19 5.8 -22 5 Z"/>
+          <path class="ship-wale" d="M-25.5 -2 C-18 0.5 0 1.5 10 0.5 C18 -0.5 24 -2.5 27 -4"/>
+          <path class="ship-plank" d="M-21 3.2 C-12 5.2 4 5.4 18 2.8"/>
+          <path class="ship-port" d="M-4 -2.3 h2 v1.4 h-2 Z M-0.4 -2.3 h2 v1.4 h-2 Z M3.2 -2.3 h2 v1.4 h-2 Z M6.8 -2.3 h2 v1.4 h-2 Z M10.4 -2.3 h2 v1.4 h-2 Z"/>
+          <path class="ship-window" d="M-22.8 -8.6 h1.8 v1.6 h-1.8 Z M-19.9 -8.6 h1.8 v1.6 h-1.8 Z M-17 -8.6 h1.8 v1.6 h-1.8 Z"/>
+          <path class="ship-spar" d="M-24 -10 V-21"/>
+          <path class="ship-ensign" d="M-24 -21 L-15.5 -19.6 L-24 -17.6 Z"/>
+          <path class="ship-pennant" d="M0 -43.6 L9.5 -42 L0 -40.5 Z M15 -35.6 L22 -34.4 L15 -33.4 Z M-14 -33.6 L-7.5 -32.5 L-14 -31.5 Z"/>
         </symbol>
       </defs>
       <g id="routes-layer"></g>
@@ -103,6 +123,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+  <script src="js/detail.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
