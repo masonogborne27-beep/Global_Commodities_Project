@@ -145,6 +145,8 @@ Add a `scene` block to the stop in `data/stops.json`:
 - **`coordinates`** (optional) is where on the map the scene is, as `[longitude, latitude]`; the camera dives toward it. Without it, the camera dives toward the stop's marker.
 - **`note`** (optional) is a short highlighted line in the caption, e.g. to say a picture is a modern illustration.
 - **`fallbackImage`** (optional) is shown if `image` can't be found.
+- **`fit`** (optional): `"whole"` shows the entire picture, with a soft blurred copy filling any space around it. Leave it out to fill the screen (cropping the edges if needed).
+- **`hotspots`** can be an empty list `[]` for a picture with no clickable dots.
 - **`pan`** (optional) is the slow drift: it moves from the point `from` to the point `to`, zooming from `zoomFrom` to `zoomTo`, over `seconds`, then back. Points are fractions of the picture, `[across, down]`, so `[0, 0]` is the top-left corner and `[1, 1]` the bottom-right. Leave `pan` out for a still picture with a gentle breathe.
 - **`hotspots`** are the clickable pins, also placed as fractions of the picture. To find a position, open the image, note where the thing is as a share of the width and height, and round to two decimals. Each needs a `label` (shown under the pin) and `text` (shown when clicked).
 - Use a picture at least 1600 px wide so it stays sharp full-screen, and keep it under about 800 KB.
