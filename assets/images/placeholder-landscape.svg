@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="420" viewBox="0 0 640 420">
+  <rect width="640" height="420" fill="#e9d8b2"/>
+  <rect x="10" y="10" width="620" height="400" fill="none" stroke="#8b6b3e" stroke-width="2" stroke-dasharray="8 6"/>
+  <g transform="translate(320 180)" fill="none" stroke="#8b6b3e" stroke-width="3" stroke-linejoin="round">
+    <rect x="-34" y="-24" width="68" height="48" rx="4"/>
+    <path d="M-28 16 L-8 -4 L6 10 L14 2 L28 16"/>
+    <circle cx="14" cy="-10" r="5"/>
+  </g>
+  <text x="50%" y="240" text-anchor="middle" font-family="Georgia, serif" font-size="22" fill="#5a3620">Placeholder image</text>
+  <text x="50%" y="266" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#7a5a36">Replace in data/stops.json</text>
+</svg>
