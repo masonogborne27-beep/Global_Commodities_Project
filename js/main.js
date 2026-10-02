@@ -11,6 +11,10 @@
     stopsUrl: 'data/stops.json',
     routesUrl: 'data/routes.json',
     atlasUrl: 'https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-50m.json',
+    land10Url: 'https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/land-10m.json', // sharper coastlines when zoomed in
+    riversUrl: 'data/rivers.json',
+    labelsUrl: 'data/labels.json',
+    maxZoom: 2500,        // furthest the map can zoom (same units as "zoom" in stops.json)
     flyMs: 1700,          // camera move to a stop
     oceanDrawMs: 2600,    // time for an ocean route (and its ship) to draw
     landDrawMs: 1500,     // time for a land route to draw
@@ -31,6 +35,8 @@
     routesLayer: $('#routes-layer'),
     shipsLayer: $('#ships-layer'),
     markers: $('#markers'),
+    detailCanvas: $('#detail-canvas'),
+    labels: $('#labels'),
     topbar: $('.topbar'),
     topbarTitle: $('#topbar-title'),
     year: $('#year'),
@@ -69,6 +75,9 @@
     height: 0,
     kScale: 1,
     kMin: 0.5,
+    kMax: 100,
+    land: null,
+    borders: null,
     reached: -1,      // highest stop index the visitor has reached
     current: null,    // stop index, 'finale', or null
     finished: false,
@@ -190,6 +199,24 @@
       prepareRoutes(routesData);
       fillTitleCard(state.data.intro || {});
       buildMap(world);
+      if (window.CacaoDetail) {
+        CacaoDetail.init({
+          canvas: els.detailCanvas,
+          labelsLayer: els.labels,
+          state,
+          land50: state.land,
+          borders50: state.borders,
+          land10Url: CONFIG.land10Url,
+          riversUrl: CONFIG.riversUrl,
+          labelsUrl: CONFIG.labelsUrl,
+          // Where labels may go, and what they should keep clear of.
+          visibleRect: () => viewRect(isPanelOpen()),
+          blockers: () => ['.legend', '.compass']
+            .map((sel) => document.querySelector(sel))
+            .filter((node) => node && node.getClientRects().length)
+            .map((node) => node.getBoundingClientRect())
+        });
+      }
       buildMarkers();
       buildRoutes();
       buildSources();
@@ -242,6 +269,8 @@
           stop
         };
       });
+      // Extra points to include when zooming in close (see "frame" in the README).
+      stop.frame = asArray(stop.frame).filter(validCoords).map((c) => [+c[0], +c[1]]);
       stop.markers.forEach((m) => {
         state.markers.push(m);
         if (!state.markerById.has(m.id)) state.markerById.set(m.id, m);
@@ -319,6 +348,8 @@
     const obj = world.objects.countries;
     const land = topojson.merge(world, obj.geometries);
     const borders = topojson.mesh(world, obj, (a, b) => a !== b);
+    state.land = land;
+    state.borders = borders;
 
     const svg = d3.select(els.mapSvg);
     state.gMap = svg.append('g').attr('class', 'map-layer');
@@ -329,7 +360,10 @@
 
     state.transform = d3.zoomIdentity;
     state.zoom = d3.zoom()
-      .scaleExtent([0.5, 100])
+      .scaleExtent([0.5, CONFIG.maxZoom])
+      // The detailed map is hidden while the camera moves and redrawn when it stops.
+      .on('start.detail', () => window.CacaoDetail && CacaoDetail.hide())
+      .on('end.detail', () => window.CacaoDetail && CacaoDetail.schedule())
       .on('zoom', (event) => {
         state.transform = event.transform;
         state.gMap.attr('transform', event.transform);
@@ -354,9 +388,10 @@
     const worldH = b[1][1] - b[0][1];
     state.kScale = Math.max(1, 1200 / worldW);
     state.kMin = Math.max(state.width / worldW, state.height / worldH);
+    state.kMax = CONFIG.maxZoom * state.kScale;
     state.zoom
       .extent([[0, 0], [state.width, state.height]])
-      .scaleExtent([state.kMin, 100 * state.kScale])
+      .scaleExtent([state.kMin, state.kMax])
       .translateExtent(b);
 
     state.markers.forEach((m) => { m.base = state.projection(m.coordinates); });
@@ -424,8 +459,8 @@
     const y0 = Math.min(...ys), y1 = Math.max(...ys);
     const availW = Math.max(60, r.x1 - r.x0 - 2 * pad);
     const availH = Math.max(60, r.y1 - r.y0 - 2 * pad);
-    const kMax = (Number.isFinite(maxZoom) ? maxZoom : CONFIG.defaultZoom) * state.kScale;
-    const k = clamp(Math.min(kMax, availW / Math.max(x1 - x0, 1e-6), availH / Math.max(y1 - y0, 1e-6)), state.kMin, 100 * state.kScale);
+    const kCap = (Number.isFinite(maxZoom) ? maxZoom : CONFIG.defaultZoom) * state.kScale;
+    const k = clamp(Math.min(kCap, availW / Math.max(x1 - x0, 1e-6), availH / Math.max(y1 - y0, 1e-6)), state.kMin, state.kMax);
     const cx = (x0 + x1) / 2;
     const cy = (y0 + y1) / 2;
     const t = d3.zoomIdentity.translate((r.x0 + r.x1) / 2 - k * cx, (r.y0 + r.y1) / 2 - k * cy).scale(k);
@@ -450,9 +485,17 @@
     });
   }
 
+  // The close-up view of a stop: its markers plus any extra "frame" points.
   function stopFramePts(stop) {
     const pts = stop.markers.map((m) => m.base);
-    routesFor(stop).forEach((r) => pts.push(...routeFramePts(r)));
+    stop.frame.forEach((c) => pts.push(state.projection(c)));
+    return pts;
+  }
+
+  // The wider view used while a route draws itself.
+  function routesFramePts(routes) {
+    const pts = [];
+    routes.forEach((r) => pts.push(...routeFramePts(r)));
     return pts;
   }
 
@@ -535,12 +578,11 @@
       r.g = layer.append('g').attr('class', `route ${r.type} is-hidden`);
       r.halo = r.g.append('path').attr('class', 'route-halo');
       r.line = r.g.append('path').attr('class', 'route-line');
-      r.ship = ships.append('use')
+      r.ship = ships.append('g').attr('class', 'ship').style('opacity', 0);
+      r.ship.append('g').attr('class', 'ship-bob').append('use')
         .attr('href', '#ship')
-        .attr('class', 'ship')
-        .attr('width', 32)
-        .attr('height', 30)
-        .style('opacity', 0);
+        .attr('x', -34).attr('y', -45)
+        .attr('width', 72).attr('height', 57);
     });
   }
 
@@ -576,7 +618,10 @@
     const ahead = node.getPointAtLength(Math.min(L, at + 2));
     const behind = node.getPointAtLength(Math.max(0, at - 2));
     const flip = ahead.x - behind.x < 0 ? -1 : 1;
-    r.ship.attr('transform', `translate(${p.x},${p.y}) scale(${flip},1) translate(-16,-22)`);
+    // The ship is drawn around its waterline at (0, 8) and faces right, so flip it
+    // when the route runs west.
+    const size = mobile.matches ? 0.62 : 0.85;
+    r.ship.attr('transform', `translate(${p.x},${p.y}) scale(${flip * size},${size}) translate(0,-8)`);
   }
 
   function animateRoute(r, duration) {
@@ -669,18 +714,34 @@
     els.overviewBtn.hidden = false;
     updateMarkers();
     setYear(stop.yearLabel);
-
     closePanel();
-    await flyTo(fitTransform(stopFramePts(stop), stop.zoom, true), ms(CONFIG.flyMs));
-    if (token !== state.nav) return;
+
+    const drawRoutes = () => Promise.all(own.map((r) =>
+      animateRoute(r, ms(r.type === 'ocean' ? CONFIG.oceanDrawMs : CONFIG.landDrawMs))));
+    const closeUp = fitTransform(stopFramePts(stop), stop.zoom, true);
+
+    // A new stop with routes: first frame the whole route and let it draw itself
+    // (the ship sails), then fly in close on the place. If the close-up already
+    // shows the whole route, skip the first step.
+    let lead = null;
+    if (isNew && own.length) {
+      lead = fitTransform(routesFramePts(own), CONFIG.defaultZoom, false);
+      if (Math.abs(Math.log(lead.k / closeUp.k)) < 0.25) lead = null;
+    }
+
+    if (lead) {
+      await flyTo(lead, ms(CONFIG.flyMs));
+      if (token !== state.nav) return;
+      await drawRoutes();
+      if (token !== state.nav) return;
+    }
 
     renderStopPanel(stop);
     openPanel();
+    await flyTo(closeUp, ms(CONFIG.flyMs));
+    if (token !== state.nav) return;
 
-    if (isNew) {
-      await Promise.all(own.map((r) =>
-        animateRoute(r, ms(r.type === 'ocean' ? CONFIG.oceanDrawMs : CONFIG.landDrawMs))));
-    }
+    if (isNew && !lead) await drawRoutes();
   }
 
   async function goToFinale() {
@@ -1024,7 +1085,9 @@
     }
 
     body.append(el('h3', null, 'Map data'), el('ul', { class: 'source-list' },
-      el('li', null, 'Coastlines and borders: Natural Earth (public domain), via the world-atlas package. Modern borders are shown only for reference.'),
+      el('li', null, 'Coastlines, rivers and borders: Natural Earth (public domain), via the world-atlas package. Modern borders are shown only for reference.'),
+      el('li', null, 'Terrain shading and sea depth: Terrain Tiles (Mapzen) on AWS Open Data, built from SRTM, GMTED2010, ETOPO1 and other public elevation data. Full list of data sources: github.com/tilezen/joerd/blob/master/docs/attribution.md'),
+      el('li', null, 'Place and river names on the map are modern names, shown only to help find your way around.'),
       el('li', null, 'Map made with D3.js.')));
   }
 

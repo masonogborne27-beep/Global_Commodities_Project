@@ -79,6 +79,61 @@ button { font: inherit; color: inherit; }
   display: block;
 }
 
+/* Detailed map, drawn when the camera is still. Fades in over the base map. */
+.detail-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.detail-canvas.is-ready { opacity: 1; transition-duration: 0.7s; }
+
+.labels {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.labels.is-ready { opacity: 1; transition-duration: 0.9s; transition-delay: 0.15s; }
+
+.map-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  white-space: nowrap;
+  line-height: 1.1;
+  font-family: var(--font-display);
+  font-style: italic;
+  color: var(--ink-soft);
+  text-shadow: 0 0 3px var(--parchment), 0 0 6px var(--parchment), 0 0 2px var(--parchment);
+}
+.label-ocean {
+  font-size: 24px;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: rgba(52, 78, 90, 0.72);
+  text-shadow: none;
+}
+.label-sea {
+  font-size: 18px;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: rgba(52, 78, 90, 0.72);
+  text-shadow: none;
+}
+.label-island,
+.label-region { font-size: 15px; letter-spacing: 0.08em; color: var(--choc); }
+.label-mountain { font-size: 14px; color: var(--choc-2); }
+.label-mountain::before { content: "\25B2\00a0"; font-style: normal; font-size: 0.8em; color: var(--land-stroke); }
+.label-river { font-size: 13px; letter-spacing: 0.06em; color: #2f6072; }
+.label-place { font-size: 14px; color: var(--ink); }
+
 .map-svg { cursor: grab; touch-action: none; }
 .map-svg:active { cursor: grabbing; }
 .routes-svg { pointer-events: none; overflow: visible; }
@@ -178,10 +233,28 @@ body.panel-open .compass { transform: translateX(calc(-1 * var(--panel-w))); }
 .arrow-land { fill: var(--route-land); }
 
 .ship { transition: opacity 0.6s ease; }
-.ship-hull { fill: var(--choc-2); stroke: var(--choc); stroke-width: 0.8; }
-.ship-sail { fill: var(--cream); stroke: var(--choc-2); stroke-width: 0.9; }
-.ship-mast { stroke: var(--choc); stroke-width: 1.3; }
-.ship-flag { fill: #9c2a1a; }
+.ship-bob {
+  transform-box: fill-box;
+  transform-origin: 50% 88%;
+  animation: bob 2.6s ease-in-out infinite;
+}
+@keyframes bob {
+  0%, 100% { transform: translateY(0) rotate(-1.4deg); }
+  50% { transform: translateY(-1.4px) rotate(1.4deg); }
+}
+.ship-hull { fill: #6d4528; stroke: #2b1a10; stroke-width: 0.9; stroke-linejoin: round; }
+.ship-lower { fill: #2f1d12; }
+.ship-wale { fill: none; stroke: #c9a043; stroke-width: 1.2; stroke-linecap: round; }
+.ship-plank { fill: none; stroke: rgba(20, 10, 4, 0.4); stroke-width: 0.5; }
+.ship-port { fill: #1d120b; }
+.ship-window { fill: #ecd9a2; }
+.ship-sail { fill: #f4ead0; stroke: #5b4330; stroke-width: 0.7; stroke-linejoin: round; }
+.ship-spar { fill: none; stroke: #3a2616; stroke-width: 1.1; stroke-linecap: round; }
+.ship-rig { fill: none; stroke: #3a2616; stroke-width: 0.45; opacity: 0.75; }
+.ship-ensign { fill: #fbf8ee; stroke: #5b4330; stroke-width: 0.5; stroke-linejoin: round; }
+.ship-pennant { fill: #9c2a1a; }
+.ship-wake { fill: none; stroke: rgba(255, 255, 255, 0.9); stroke-width: 1.3; stroke-linecap: round; }
+.ship-foam { fill: none; stroke: rgba(255, 255, 255, 0.95); stroke-width: 1.2; stroke-linecap: round; }
 
 /* ---------- Stop markers ---------- */
 
@@ -842,6 +915,7 @@ body.panel-open .compass { transform: translateX(calc(-1 * var(--panel-w))); }
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+  .ship-bob { animation: none; }
   .marker.is-next::before,
   .marker.is-next::after { display: none; }
   .marker.is-next .marker-dot { box-shadow: 0 0 10px 4px rgba(224, 189, 106, 0.9); }

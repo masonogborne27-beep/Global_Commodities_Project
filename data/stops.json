@@ -17,7 +17,8 @@
       "dateRange": "TODO: date range",
       "yearLabel": "c. TODO",
       "coordinates": [-61.176, 14.743],
-      "zoom": 10,
+      "zoom": 600,
+      "frame": [[-61.3, 14.35], [-60.75, 14.95]],
       "markers": [
         { "id": "saint-pierre", "name": "Saint-Pierre", "coordinates": [-61.176, 14.743], "labelPosition": "right" }
       ],
@@ -60,7 +61,8 @@
       "dateRange": "TODO: date range",
       "yearLabel": "c. TODO",
       "coordinates": [-17.398, 14.667],
-      "zoom": 12,
+      "zoom": 800,
+      "frame": [[-17.95, 14.45], [-17.0, 14.95]],
       "markers": [
         { "id": "goree", "name": "Gorée", "coordinates": [-17.398, 14.667], "labelPosition": "left" }
       ],
@@ -95,7 +97,8 @@
       "dateRange": "TODO: date range",
       "yearLabel": "c. TODO",
       "coordinates": [-1.1, 46.0],
-      "zoom": 14,
+      "zoom": 150,
+      "frame": [[-2.9, 44.4], [0.0, 47.7]],
       "markers": [
         { "id": "nantes", "name": "Nantes", "coordinates": [-1.554, 47.218], "labelPosition": "left" },
         { "id": "bordeaux", "name": "Bordeaux", "coordinates": [-0.579, 44.838], "labelPosition": "right" }
@@ -138,7 +141,8 @@
       "dateRange": "TODO: date range",
       "yearLabel": "c. TODO",
       "coordinates": [-1.475, 43.493],
-      "zoom": 16,
+      "zoom": 800,
+      "frame": [[-2.3, 42.95], [-0.65, 43.95]],
       "markers": [
         { "id": "bayonne", "name": "Bayonne", "coordinates": [-1.475, 43.493], "labelPosition": "left" }
       ],
@@ -173,7 +177,8 @@
       "dateRange": "TODO: date range",
       "yearLabel": "c. TODO",
       "coordinates": [2.236, 48.831],
-      "zoom": 25,
+      "zoom": 800,
+      "frame": [[1.8, 48.55], [2.7, 49.05]],
       "markers": [
         { "id": "paris", "name": "Paris", "coordinates": [2.352, 48.857], "labelPosition": "right" },
         { "id": "versailles", "name": "Versailles", "coordinates": [2.120, 48.805], "labelPosition": "left" }
@@ -216,7 +221,7 @@
       "dateRange": "TODO: date range",
       "yearLabel": "c. TODO",
       "coordinates": [0.5, 46.0],
-      "zoom": 8,
+      "zoom": 14,
       "markers": [
         { "id": "madrid", "name": "Madrid", "coordinates": [-3.704, 40.417], "labelPosition": "right" },
         { "id": "seville", "name": "Seville", "coordinates": [-5.984, 37.389], "labelPosition": "left" },

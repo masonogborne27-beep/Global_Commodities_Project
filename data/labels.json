@@ -1,0 +1,22 @@
+{
+  "labels": [
+    { "name": "Atlantic Ocean",     "type": "ocean",    "coordinates": [-38, 24],         "minZoom": 1,   "maxZoom": 14 },
+    { "name": "Caribbean Sea",      "type": "sea",      "coordinates": [-66.5, 14.5],     "minZoom": 1.5, "maxZoom": 45 },
+    { "name": "Mediterranean Sea",  "type": "sea",      "coordinates": [5.5, 39.2],       "minZoom": 4,   "maxZoom": 60 },
+    { "name": "Bay of Biscay",      "type": "sea",      "coordinates": [-5.2, 45.3],      "minZoom": 8,   "maxZoom": 150 },
+    { "name": "English Channel",    "type": "sea",      "coordinates": [-2.0, 50.1],      "minZoom": 8,   "maxZoom": 120 },
+    { "name": "North Sea",          "type": "sea",      "coordinates": [3.2, 55.2],       "minZoom": 5,   "maxZoom": 40 },
+
+    { "name": "Martinique",         "type": "island",   "coordinates": [-60.99, 14.64],   "minZoom": 60,  "maxZoom": 2500 },
+    { "name": "Dominica",           "type": "island",   "coordinates": [-61.35, 15.42],   "minZoom": 20,  "maxZoom": 150 },
+    { "name": "Saint Lucia",        "type": "island",   "coordinates": [-60.97, 13.9],    "minZoom": 20,  "maxZoom": 150 },
+    { "name": "Guadeloupe",         "type": "island",   "coordinates": [-61.55, 16.15],   "minZoom": 20,  "maxZoom": 150 },
+    { "name": "Barbados",           "type": "island",   "coordinates": [-59.55, 13.2],    "minZoom": 20,  "maxZoom": 150 },
+    { "name": "Cap-Vert",           "type": "region",   "coordinates": [-17.3, 14.79],    "minZoom": 100, "maxZoom": 2500 },
+
+    { "name": "Mont Pelée",         "type": "mountain", "coordinates": [-61.165, 14.809], "minZoom": 100, "maxZoom": 2500 },
+    { "name": "Pyrenees",           "type": "mountain", "coordinates": [-1.1, 43.0],      "minZoom": 12,  "maxZoom": 900 },
+    { "name": "Alps",               "type": "mountain", "coordinates": [7.2, 45.85],      "minZoom": 6,   "maxZoom": 120 },
+    { "name": "Massif Central",     "type": "mountain", "coordinates": [3.1, 45.1],       "minZoom": 8,   "maxZoom": 60 }
+  ]
+}
