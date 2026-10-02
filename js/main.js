@@ -202,6 +202,7 @@
       if (window.CacaoDetail) {
         CacaoDetail.init({
           canvas: els.detailCanvas,
+          baseLayer: state.gMap.node(),
           labelsLayer: els.labels,
           state,
           land50: state.land,
@@ -209,6 +210,8 @@
           land10Url: CONFIG.land10Url,
           riversUrl: CONFIG.riversUrl,
           labelsUrl: CONFIG.labelsUrl,
+          // The view drawn as one big background picture of the whole tour.
+          overviewTransform: () => (state.markers.length ? fitTransform(allFramePts(), 4, false) : null),
           // Where labels may go, and what they should keep clear of.
           visibleRect: () => viewRect(isPanelOpen()),
           blockers: () => ['.legend', '.compass']
@@ -361,13 +364,15 @@
     state.transform = d3.zoomIdentity;
     state.zoom = d3.zoom()
       .scaleExtent([0.5, CONFIG.maxZoom])
-      // The detailed map is hidden while the camera moves and redrawn when it stops.
-      .on('start.detail', () => window.CacaoDetail && CacaoDetail.hide())
-      .on('end.detail', () => window.CacaoDetail && CacaoDetail.schedule())
+      // The detailed map moves with the camera every frame, and draws a fresh,
+      // sharp picture of the view once the camera stops.
+      .on('start.detail', () => window.CacaoDetail && CacaoDetail.setMoving(true))
+      .on('end.detail', () => window.CacaoDetail && CacaoDetail.setMoving(false))
       .on('zoom', (event) => {
         state.transform = event.transform;
         state.gMap.attr('transform', event.transform);
         updateOverlay();
+        if (window.CacaoDetail) CacaoDetail.frame();
       });
     svg.call(state.zoom).on('dblclick.zoom', null);
   }
@@ -396,7 +401,9 @@
 
     state.markers.forEach((m) => { m.base = state.projection(m.coordinates); });
     state.routes.forEach(computeRouteBase);
+    if (window.CacaoDetail) CacaoDetail.reset();
     reframe();
+    prefetchAhead();
   }
 
   function computeRouteBase(r) {
@@ -697,15 +704,48 @@
      Tour navigation
      ------------------------------------------------------------------------ */
 
+  // Where the camera goes for a stop: a close-up of the place, and (for a new
+  // stop with routes) a wider "lead" view that shows the routes first.
+  function planStop(stop, isNew) {
+    const own = routesFor(stop);
+    const closeUp = fitTransform(stopFramePts(stop), stop.zoom, true);
+    let lead = null;
+    if (isNew && own.length) {
+      lead = fitTransform(routesFramePts(own), CONFIG.defaultZoom, false);
+      // If the close-up already shows the whole route, skip the lead view.
+      if (Math.abs(Math.log(lead.k / closeUp.k)) < 0.25) lead = null;
+    }
+    return { own, closeUp, lead };
+  }
+
+  const finaleTransform = () => fitTransform(allFramePts(), 6, true);
+
+  // Draw the detailed map for the next stop in the background, so the camera
+  // arrives on a finished picture.
+  function prefetchAhead() {
+    if (!window.CacaoDetail || !state.markers.length) return;
+    const next = typeof state.current === 'number' ? state.current + 1 : state.reached + 1;
+    const views = [];
+    if (next < state.stops.length) {
+      const plan = planStop(state.stops[next], next === state.reached + 1 && !state.finished);
+      if (plan.lead) views.push(plan.lead);
+      views.push(plan.closeUp);
+    } else if (next === state.stops.length) {
+      views.push(finaleTransform());
+    }
+    CacaoDetail.prefetch(views);
+  }
+
   async function goToStop(index) {
     const stop = state.stops[index];
     if (!stop || index > state.reached + 1) return;
     const token = ++state.nav;
     const isNew = index === state.reached + 1 && !state.finished;
+    const { own, closeUp, lead } = planStop(stop, isNew);
+    if (window.CacaoDetail) CacaoDetail.prefetch([lead, closeUp].filter(Boolean));
     if (index > state.reached) state.reached = index;
     state.current = index;
 
-    const own = routesFor(stop);
     syncRoutes(isNew ? own : null);
     if (isNew) own.forEach(hideRoute);
     highlightRoutes(own.length ? own : null);
@@ -718,17 +758,9 @@
 
     const drawRoutes = () => Promise.all(own.map((r) =>
       animateRoute(r, ms(r.type === 'ocean' ? CONFIG.oceanDrawMs : CONFIG.landDrawMs))));
-    const closeUp = fitTransform(stopFramePts(stop), stop.zoom, true);
 
     // A new stop with routes: first frame the whole route and let it draw itself
-    // (the ship sails), then fly in close on the place. If the close-up already
-    // shows the whole route, skip the first step.
-    let lead = null;
-    if (isNew && own.length) {
-      lead = fitTransform(routesFramePts(own), CONFIG.defaultZoom, false);
-      if (Math.abs(Math.log(lead.k / closeUp.k)) < 0.25) lead = null;
-    }
-
+    // (the ship sails), then fly in close on the place.
     if (lead) {
       await flyTo(lead, ms(CONFIG.flyMs));
       if (token !== state.nav) return;
@@ -742,6 +774,8 @@
     if (token !== state.nav) return;
 
     if (isNew && !lead) await drawRoutes();
+    // Give the arrival a moment to settle before drawing the next stop in the background.
+    setTimeout(() => { if (token === state.nav) prefetchAhead(); }, 1200);
   }
 
   async function goToFinale() {
@@ -757,7 +791,7 @@
     setYear(conclusion.yearLabel);
 
     closePanel();
-    await flyTo(fitTransform(allFramePts(), 6, true), ms(CONFIG.finaleFlyMs));
+    await flyTo(finaleTransform(), ms(CONFIG.finaleFlyMs));
     if (token !== state.nav) return;
 
     renderConclusionPanel();
@@ -783,6 +817,7 @@
     updateMarkers();
     showOverview(ms(CONFIG.flyMs));
     showHint();
+    prefetchAhead();
   }
 
   function restart() {
@@ -798,6 +833,7 @@
     showOverview(ms(CONFIG.flyMs));
     showHint();
     focusNextMarker();
+    prefetchAhead();
   }
 
   function setYear(label) {
@@ -1046,6 +1082,7 @@
     updateMarkers();
     showHint();
     focusNextMarker();
+    prefetchAhead();
   }
 
   function buildSources() {

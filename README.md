@@ -12,7 +12,7 @@ It is a plain HTML/CSS/JavaScript site with no build step, so it runs on GitHub 
 index.html          page structure (title card, map, panel, Sources dialog)
 css/style.css       all styling (colors are variables at the top)
 js/main.js          map drawing and animation; you shouldn't need to edit this
-js/detail.js        the detailed map (terrain, rivers, labels) drawn when the camera stops
+js/detail.js        the detailed map (terrain, rivers, labels)
 data/stops.json     ALL historical content: text, dates, coordinates, images, sources
 data/routes.json    the trade routes drawn between places
 data/labels.json    names of seas, islands and mountains shown on the map
@@ -119,7 +119,7 @@ Each route is one animated line on the map.
 
 ## Map detail (terrain, rivers, labels)
 
-When the camera stops moving, the map redraws the area you are looking at in more detail:
+The map is drawn in detail, and stays detailed while the camera moves. Behind the scenes, `js/detail.js` draws pictures of the views the tour visits (the next stop is drawn ahead of time, while you read) and moves them with the camera. What it shows:
 
 - **Terrain:** hills and mountains are shaded from real elevation data, and shallow water near the coast is lighter. This comes live from the free [Terrain Tiles](https://registry.opendata.aws/terrain-tiles/) service, so it needs an internet connection. Without it, the map still works, just without the shading.
 - **Coastlines:** sharper coastlines load when you zoom in.
