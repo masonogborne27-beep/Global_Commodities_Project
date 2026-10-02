@@ -34,15 +34,9 @@
         "credit": "AI-generated illustration (Canva), styled after William Clark, Ten Views in the Island of Antigua (1823)",
         "license": "Made for this project",
         "sourceUrl": "",
-        "pan": { "from": [0.42, 0.58], "to": [0.62, 0.5], "zoomFrom": 1.04, "zoomTo": 1.16, "seconds": 50 },
-        "hotspots": [
-          { "x": 0.11, "y": 0.42, "label": "Cacao pods on the trunk", "text": "TODO: what the viewer should notice here" },
-          { "x": 0.35, "y": 0.47, "label": "Carrying the harvest", "text": "TODO: what the viewer should notice here" },
-          { "x": 0.31, "y": 0.8, "label": "Splitting the pods", "text": "TODO: what the viewer should notice here" },
-          { "x": 0.8, "y": 0.84, "label": "Drying the beans", "text": "TODO: what the viewer should notice here" },
-          { "x": 0.87, "y": 0.45, "label": "The planter", "text": "TODO: what the viewer should notice here" },
-          { "x": 0.66, "y": 0.22, "label": "Mont Pelée", "text": "TODO: what the viewer should notice here" }
-        ]
+        "fit": "whole",
+        "pan": { "from": [0.5, 0.5], "to": [0.56, 0.48], "zoomFrom": 1.0, "zoomTo": 1.08, "seconds": 40 },
+        "hotspots": []
       },
       "narrative": [
         "TODO: narrative paragraph 1 about French cacao plantations in Martinique",

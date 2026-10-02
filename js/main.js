@@ -946,8 +946,9 @@
     const cover = Math.max(W / nw, H / nh);
     const contain = Math.min(W / nw, H / nh);
     const hs = sc.hotspots;
-    let fit = cover;
-    if (hs.length) {
+    // "fit": "whole" shows the entire picture (the blurred backdrop fills the edges).
+    let fit = sc.fit === 'whole' ? contain : cover;
+    if (sc.fit !== 'whole' && hs.length) {
       const spanX = Math.max(...hs.map((h) => h.x)) - Math.min(...hs.map((h) => h.x));
       const spanY = Math.max(...hs.map((h) => h.y)) - Math.min(...hs.map((h) => h.y));
       const margin = 0.07;
