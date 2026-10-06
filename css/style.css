@@ -356,10 +356,13 @@ body.panel-open .compass { transform: translateX(calc(-1 * var(--panel-w))); }
 .label-top .marker-label { top: auto; bottom: 100%; left: 50%; transform: translateX(-50%); }
 .label-bottom .marker-label { top: 100%; left: 50%; transform: translateX(-50%); }
 
+/* Every stop reached so far keeps its name beside its pin, at any zoom. */
+.marker.is-visited .marker-label,
 .marker.is-next .marker-label,
 .marker.is-current .marker-label,
 .marker:hover .marker-label,
 .marker:focus-visible .marker-label { opacity: 1; }
+.marker.label-hidden:not(:hover):not(:focus-visible) .marker-label { opacity: 0; }
 
 /* ---------- Top bar ---------- */
 
@@ -938,8 +941,10 @@ body.panel-open .compass { transform: translateX(calc(-1 * var(--panel-w))); }
 .scene.is-diving { background: transparent; }
 /* The dark surround and the controls don't fly in with the picture. */
 .scene.is-diving .scene-back,
+.scene.is-diving .scene-info,
 .scene.is-diving .scene-caption { opacity: 0; transition: none; }
 .scene-back,
+.scene-info,
 .scene-caption { transition: opacity 0.5s ease; }
 
 .dive-mist {
@@ -1088,13 +1093,22 @@ body.panel-open .compass { transform: translateX(calc(-1 * var(--panel-w))); }
 .hotspot.is-open .hotspot-name,
 .scene.show-names .hotspot-name { opacity: 1; }
 
-.scene-back {
+.scene-back,
+.scene-info {
   position: absolute;
   top: calc(var(--topbar-h) + 14px);
   left: 14px;
   z-index: 3;
   background: rgba(43, 26, 16, 0.82);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+/* Brings the information panel back after it was closed inside a scene. */
+.scene-info { display: none; left: auto; right: 14px; }
+body.in-scene:not(.panel-open) .scene-info { display: inline-flex; }
+
+/* The picture eases into its new size when the panel opens or closes. */
+.scene.is-panning .scene-stage {
+  transition: left 0.45s ease, top 0.45s ease, width 0.45s ease, height 0.45s ease;
 }
 
 .scene-caption {
@@ -1177,7 +1191,9 @@ body.in-scene .map { visibility: hidden; }
 .scene-section .credit { font-size: 14px; color: var(--ink-soft); }
 
 @media (max-width: 720px) {
-  .scene-back { top: calc(var(--topbar-h) + 10px); left: 10px; padding: 5px 10px; font-size: 15px; }
+  .scene-back,
+  .scene-info { top: calc(var(--topbar-h) + 10px); left: 10px; padding: 5px 10px; font-size: 15px; }
+  .scene-info { left: auto; right: 10px; }
   /* A compact strip just above the bottom sheet; the full credit is in the panel and in Sources. */
   .scene-caption {
     left: 10px;
