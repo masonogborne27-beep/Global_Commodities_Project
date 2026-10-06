@@ -22,9 +22,9 @@
     finaleStaggerMs: 450, // delay between each stop's routes in the finale
     defaultBend: 0.2,     // how curved a route is if routes.json doesn't say
     defaultZoom: 6,       // max zoom for a stop if stops.json doesn't say
-    sceneDiveMs: 1800,    // the dive from the map into the scene (continues straight on from the close-up)
-    sceneDiveZoom: 5,     // how much further the map zooms in during the dive
-    sceneLeaveMs: 1100    // climbing back out of the scene to the map
+    sceneDiveMs: 3200,    // the dive from the map, down through the clouds, into the scene
+    sceneDiveZoom: 40,    // how much further the camera zooms in during the dive
+    sceneLeaveMs: 2600    // climbing back up through the clouds to the map
   };
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -68,7 +68,10 @@
     sceneBack: $('#scene-back'),
     sceneCaption: $('#scene-caption'),
     scenePopover: $('#scene-popover'),
-    sceneBackdrop: $('#scene-backdrop')
+    sceneBackdrop: $('#scene-backdrop'),
+    diveMist: $('#dive-mist'),
+    diveMistNear: $('#dive-mist-near'),
+    diveWhiteout: $('#dive-whiteout')
   };
 
   const state = {
@@ -224,6 +227,8 @@
           labelsUrl: CONFIG.labelsUrl,
           // The view drawn as one big background picture of the whole tour.
           overviewTransform: () => (state.markers.length ? fitTransform(allFramePts(), 4, false) : null),
+          // Don't redraw the map while a scene covers it.
+          busy: () => !!state.scene,
           // Where labels may go, and what they should keep clear of.
           visibleRect: () => viewRect(isPanelOpen()),
           blockers: () => ['.legend', '.compass']
@@ -1092,6 +1097,110 @@
     pop.returnTo = null;
   }
 
+  // Moves the map camera without firing zoom events (used for every frame of a dive).
+  function setCamera(t) {
+    els.mapSvg.__zoom = t; // keep d3-zoom's own record in step
+    state.transform = t;
+    state.gMap.attr('transform', t);
+    updateOverlay();
+    if (window.CacaoDetail) CacaoDetail.frame();
+  }
+
+  const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+
+  // One continuous camera move between the map and a scene, like flying down
+  // through the clouds over the island:
+  //   1. The camera keeps zooming toward the scene's spot. The picture sits on the
+  //      map there, scaled exactly with the zoom, showing as a soft spot that never
+  //      reaches its own edges, while banks of cloud start rushing past.
+  //   2. As the picture reaches full size the cloud thickens to a white-out, which
+  //      hides the moment the map hands over to the picture.
+  //   3. The cloud clears over the painting while it keeps growing the last few
+  //      per cent, so the zoom never stops between the map and the scene.
+  // Leaving runs the same move backwards. "base" is the map view at the start of
+  // the dive in (or at the end of the dive out).
+  const DIVE_SPLIT = 0.5; // share of the time spent zooming; the rest is the cloud clearing
+  const DIVE_HANDOVER = 0.92; // picture size at the white-out; it grows to 1 as the cloud clears
+
+  function runDive(stop, inward, base, duration) {
+    const scene = els.scene;
+    const b = sceneBase(stop);
+    const Z = CONFIG.sceneDiveZoom;
+    const [ox, oy] = b ? base.apply(b) : [state.width / 2, state.height / 2];
+    for (const node of [scene, els.diveMist, els.diveMistNear]) node.style.transformOrigin = `${ox}px ${oy}px`;
+    scene.style.setProperty('--mx', `${(ox / state.width) * 100}%`);
+    scene.style.setProperty('--my', `${(oy / state.height) * 100}%`);
+    els.diveWhiteout.style.setProperty('--wx', `${(ox / state.width) * 100}%`);
+    els.diveWhiteout.style.setProperty('--wy', `${(oy / state.height) * 100}%`);
+    scene.style.transition = 'none';
+
+    // The soft spot stays inside the picture's nearest edge (and the screen's).
+    const st = els.sceneStage;
+    const pcx = parseFloat(st.style.left) || state.width / 2;
+    const pcy = parseFloat(st.style.top) || state.height / 2;
+    const pw = (parseFloat(st.style.width) || state.width) / 2;
+    const ph = (parseFloat(st.style.height) || state.height) / 2;
+    const near = Math.max(40, Math.min(ox - (pcx - pw), pcx + pw - ox, oy - (pcy - ph), pcy + ph - oy,
+      ox, oy, state.width - ox, state.height - oy));
+
+    // u runs 0 → 1 from "on the map" to "in the scene", whichever way we are going.
+    const apply = (u) => {
+      const a = clamp(u / DIVE_SPLIT, 0, 1);
+      const e = inward ? 1 - Math.pow(1 - a, 3) : d3.easeCubicInOut(a);
+      const s = Math.pow(Z, e - 1); // the picture's size relative to the white-out: 1 = handover
+      const clearing = smooth(DIVE_SPLIT, 1, u); // 0 until the zoom ends, then 0 → 1
+      const c = clamp((u - DIVE_SPLIT) / (1 - DIVE_SPLIT), 0, 1);
+      const grow = DIVE_HANDOVER + (1 - DIVE_HANDOVER) * (1 - Math.pow(1 - c, 3));
+
+      if (b) {
+        const k = base.k * Math.pow(Z, e);
+        setCamera(d3.zoomIdentity.translate(ox - k * b[0], oy - k * b[1]).scale(k));
+      }
+      scene.style.transform = `scale(${u < DIVE_SPLIT ? s * DIVE_HANDOVER : grow})`;
+      scene.style.opacity = smooth(0.18, 0.75, e).toFixed(3);
+      const open = u >= DIVE_SPLIT; // after the white-out the whole picture is shown
+      scene.style.setProperty('--r0', open ? '9999px' : `${(near * (0.12 + 0.6 * smooth(0.2, 0.95, s))).toFixed(1)}px`);
+      scene.style.setProperty('--r1', open ? '9999px' : `${(near * 0.95).toFixed(1)}px`);
+      scene.style.setProperty('--bd', open ? '1' : '0');
+
+      const banks = u < DIVE_SPLIT ? smooth(0.1, 0.4, s) : 1 - clearing;
+      const white = u < DIVE_SPLIT ? 0.985 * smooth(0.82, 1, s) : 0.985 * (1 - smooth(0, 0.75, c));
+      els.diveMist.style.opacity = (0.95 * banks).toFixed(3);
+      els.diveMist.style.transform = `scale(${(0.6 + 4 * u).toFixed(3)})`;
+      els.diveMistNear.style.opacity = (0.85 * banks).toFixed(3);
+      els.diveMistNear.style.transform = `scale(${(1 + 7 * u).toFixed(3)}) rotate(${(10 * u).toFixed(2)}deg)`;
+      els.diveWhiteout.style.opacity = white.toFixed(3);
+    };
+
+    const quiet = () => { for (const node of [els.diveMist, els.diveMistNear, els.diveWhiteout]) node.style.opacity = '0'; };
+
+    return new Promise((resolve) => {
+      if (state.diveTimer) state.diveTimer.stop();
+      d3.select(els.mapSvg).interrupt();
+      if (window.CacaoDetail) CacaoDetail.setMoving(true); // no heavy map drawing mid-dive
+      scene.classList.add('is-diving');
+      const done = () => {
+        state.diveTimer = null;
+        apply(inward ? 1 : 0);
+        scene.classList.remove('is-diving');
+        if (inward) scene.style.transform = '';
+        quiet();
+        // Hand the final camera position back to d3-zoom (fires the usual events once).
+        d3.select(els.mapSvg).call(state.zoom.transform, state.transform);
+        resolve(true);
+      };
+      if (!duration) { done(); return; }
+      apply(inward ? 0 : 1);
+      const timer = d3.timer((elapsed) => {
+        const t = Math.min(1, elapsed / duration);
+        apply(inward ? t : 1 - t);
+        if (t >= 1) { timer.stop(); done(); }
+      });
+      state.diveTimer = timer;
+      state.diveTimer.cancel = () => { timer.stop(); state.diveTimer = null; quiet(); resolve(false); };
+    });
+  }
+
   async function enterScene(stop, token) {
     const sc = stop.scene;
     if (!sc || state.scene === stop) return;
@@ -1116,36 +1225,10 @@
       CacaoScene.start(els.sceneStage, sc.img, sc.animate);
     }
 
-    const [ox, oy] = sceneOrigin(stop);
-    scene.style.transformOrigin = `${ox}px ${oy}px`;
     scene.classList.remove('is-leaving', 'is-panning');
     scene.classList.add('is-active');
-    const dive = ms(CONFIG.sceneDiveMs);
-    if (dive) {
-      // Start tiny at the marker, then grow to fill the screen while the map
-      // keeps rushing in toward the same point.
-      scene.style.transition = 'none';
-      scene.style.transform = 'scale(0.04)';
-      scene.style.opacity = '0';
-      void scene.offsetWidth;
-      scene.style.transition = '';
-      scene.classList.add('is-diving');
-      scene.style.transform = 'scale(1)';
-      scene.style.opacity = '1';
-      // The map keeps rushing in toward the scene's spot, slowing as the picture takes over.
-      const b = sceneBase(stop);
-      if (b) {
-        const k = Math.min(state.transform.k * CONFIG.sceneDiveZoom, state.kMax);
-        const t = d3.zoomIdentity.translate(ox - k * b[0], oy - k * b[1]).scale(k);
-        flyTo(state.zoom.constrain()(t, state.zoom.extent()(), state.zoom.translateExtent()), dive, d3.easeCubicOut);
-      }
-      await delay(dive);
-      if (state.scene !== stop) return;
-      scene.classList.remove('is-diving');
-    } else {
-      scene.style.transform = '';
-      scene.style.opacity = '';
-    }
+    const finished = await runDive(stop, true, state.transform, ms(CONFIG.sceneDiveMs));
+    if (!finished || state.scene !== stop) return;
     scene.classList.add('is-panning');
     scene.inert = false;
     scene.setAttribute('aria-hidden', 'false');
@@ -1171,18 +1254,27 @@
     if (mobile.matches) els.panel.style.setProperty('--sheet-h', '');
     setYear(stop.yearLabel);
 
+    if (state.diveTimer) state.diveTimer.cancel();
     const dur = ms(fast ? 450 : CONFIG.sceneLeaveMs);
     if (dur && scene.classList.contains('is-active')) {
-      const [ox, oy] = sceneOrigin(stop);
-      scene.style.transformOrigin = `${ox}px ${oy}px`;
-      scene.classList.add('is-leaving');
-      if (fast) scene.style.transition = `transform ${dur}ms ease-in, opacity ${dur * 0.7}ms ease`;
-      scene.style.transform = 'scale(0.04)';
-      scene.style.opacity = '0';
-      if (!fast) flyTo(fitTransform(stopFramePts(stop), stop.zoom, isPanelOpen()), dur);
-      await delay(dur);
+      if (fast) {
+        // Moving on to another stop: the scene just shrinks away while the camera leaves.
+        const [ox, oy] = sceneOrigin(stop);
+        scene.classList.remove('is-diving');
+        scene.style.transformOrigin = `${ox}px ${oy}px`;
+        scene.classList.add('is-leaving');
+        scene.style.transition = `transform ${dur}ms ease-in, opacity ${dur * 0.7}ms ease`;
+        scene.style.transform = 'scale(0.04)';
+        scene.style.opacity = '0';
+        await delay(dur);
+      } else {
+        // Back to the map: the dive in reverse, ending on the island close-up.
+        await runDive(stop, false, fitTransform(stopFramePts(stop), stop.zoom, isPanelOpen()), dur);
+      }
       if (state.scene) return; // a new scene started meanwhile
     }
+    for (const node of [els.diveMist, els.diveMistNear, els.diveWhiteout]) node.style.opacity = '0';
+    scene.classList.remove('is-diving');
     scene.classList.remove('is-active', 'is-leaving');
     if (window.CacaoScene) CacaoScene.stop();
     scene.style.transition = '';
