@@ -165,6 +165,7 @@
 
   function onRest() {
     if (!host || moving || !host.state.projection) return;
+    if (host.busy && host.busy()) return;
     placeLabels();
     host.labelsLayer.classList.add('is-ready');
     ensureWide();
