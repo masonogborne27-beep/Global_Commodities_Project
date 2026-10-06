@@ -122,7 +122,7 @@ Each route is one animated line on the map.
 
 A stop can end with a **scene**: clicking the stop flies in to the island and keeps going without stopping, until a full-screen picture grows out of the scene's spot on the map. The picture drifts slowly, has pulsing hotspots the viewer can click for a short note, a caption with the credit, and a "Back to the map" button (Esc also works). A "View the scene" button in the panel opens it again.
 
-Martinique's scene is an **AI-generated illustration** made for this project (in Canva, styled after William Clark's 1823 Antigua prints). The caption says plainly that it is a modern illustration and not a historical source. It is expected at `assets/images/martinique-cacao-scene.jpg`; until that file exists, the labelled placeholder drawing is shown instead.
+Martinique's scene is an **AI-generated illustration** made for this project (in Canva, styled after William Clark's 1823 Antigua prints). The caption says plainly that it is a modern illustration and not a historical source. It is `assets/images/martinique-cacao-scene.jpg`, and it is animated in the browser (see `animate` below).
 
 Add a `scene` block to the stop in `data/stops.json`:
 

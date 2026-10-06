@@ -24,9 +24,8 @@
       ],
       "scene": {
         "image": "assets/images/martinique-cacao-scene.jpg",
-        "fallbackImage": "assets/images/placeholder-scene.svg",
         "coordinates": [-61.155, 14.765],
-        "alt": "Painted illustration of a cacao plantation on a hillside: enslaved African men and women pick cacao pods from the trunks of small trees, carry them in baskets on their heads, split them open, and spread the beans on a raised wooden drying platform, while a planter on horseback watches. The cone of Mont Pelée rises behind, with a plantation house below it.",
+        "alt": "Painted illustration of a cacao plantation on the hills above Saint-Pierre: enslaved African men and women cut ripe yellow and red cacao pods from the tree trunks, carry them in a basket on the head, split the pods to scoop out the white beans, and spread dark beans to dry on a large wooden platform beside a heap covered with banana leaves, while a planter in a tricorne hat watches on horseback. Behind rise the cloud-capped cone of Mont Pelée, a stone plantation house, and the harbour of Saint-Pierre with sailing ships at anchor.",
         "title": "A cacao plantation above Saint-Pierre",
         "year": "c. 1700",
         "note": "AI illustration made for this project, not a historical source",
@@ -37,15 +36,17 @@
         "fit": "whole",
         "animate": {
           "sway": [
-            { "box": [0.0, 0.0, 0.44, 0.42], "amount": 1.0 },
-            { "box": [0.4, 0.3, 0.62, 0.52], "amount": 0.5 }
+            { "box": [0.0, 0.0, 0.36, 0.38], "amount": 1.0 },
+            { "box": [0.22, 0.17, 0.46, 0.37], "amount": 0.7 },
+            { "box": [0.46, 0.3, 0.62, 0.47], "amount": 0.4 },
+            { "box": [0.94, 0.38, 1.0, 0.47], "amount": 0.5 }
           ],
-          "sky": [0.36, 0.0, 1.0, 0.3],
-          "ground": [0.0, 0.58, 0.6, 1.0],
-          "shimmer": [[0.55, 0.72, 1.0, 0.95]],
-          "smoke": [[0.645, 0.53]],
-          "birds": { "count": 3, "band": [0.35, 0.04, 1.0, 0.2] },
-          "motes": { "box": [0.05, 0.35, 0.6, 0.85], "count": 28 }
+          "sky": [0.37, 0.0, 1.0, 0.28],
+          "ground": [0.0, 0.62, 0.6, 1.0],
+          "shimmer": [[0.62, 0.8, 0.97, 0.95], [0.66, 0.46, 0.85, 0.52]],
+          "smoke": [[0.665, 0.535]],
+          "birds": { "count": 3, "band": [0.3, 0.02, 1.0, 0.18] },
+          "motes": { "box": [0.05, 0.3, 0.6, 0.85], "count": 28 }
         },
         "pan": { "from": [0.5, 0.5], "to": [0.56, 0.48], "zoomFrom": 1.0, "zoomTo": 1.08, "seconds": 40 },
         "hotspots": []

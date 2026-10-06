@@ -960,7 +960,15 @@
     stage.style.width = `${sw}px`;
     stage.style.height = `${sh}px`;
     stage.style.left = `${r.x0 + W / 2}px`;
-    stage.style.top = `${r.y0 + H / 2}px`;
+    // When the whole picture is shown and there is room, lift it so the caption
+    // sits in the space below instead of covering part of the picture.
+    let cy = r.y0 + H / 2;
+    if (sc.fit === 'whole') {
+      const capH = els.sceneCaption.offsetHeight || 0;
+      const spare = H - sh;
+      if (capH && spare >= capH + 34) cy = r.y0 + Math.min(64, spare - capH - 24) + sh / 2;
+    }
+    stage.style.top = `${cy}px`;
     els.sceneCaption.style.bottom = `${state.height - r.y1 + 10}px`;
 
     const pan = sc.pan || {};
