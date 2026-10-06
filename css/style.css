@@ -935,18 +935,8 @@ body.panel-open .compass { transform: translateX(calc(-1 * var(--panel-w))); }
   will-change: transform, opacity;
 }
 .scene.is-active { opacity: 1; visibility: visible; }
-.scene.is-diving {
-  /* During the dive the picture's edges are feathered from the dive point outward,
-     so it melts into the map instead of showing as a rectangle (js/main.js sets the radii). */
-  -webkit-mask-image: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), #000 var(--r0, 200vmax), transparent var(--r1, 220vmax));
-  mask-image: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), #000 var(--r0, 200vmax), transparent var(--r1, 220vmax));
-}
-
-
 .scene.is-diving { background: transparent; }
 /* The dark surround and the controls don't fly in with the picture. */
-.scene.is-diving .scene-backdrop,
-.scene.is-diving .scene-vignette { opacity: var(--bd, 1); }
 .scene.is-diving .scene-back,
 .scene.is-diving .scene-caption { opacity: 0; transition: none; }
 .scene-back,
@@ -998,15 +988,6 @@ body.panel-open .compass { transform: translateX(calc(-1 * var(--panel-w))); }
 }
 
 /* A soft, blurred copy of the picture fills any space the picture itself doesn't. */
-.scene-backdrop {
-  position: absolute;
-  inset: -8%;                  /* oversized so it still fills the screen while the scene grows in */
-  width: 116%;
-  height: 116%;
-  object-fit: cover;
-  filter: blur(26px) brightness(0.62) saturate(0.9);
-  pointer-events: none;
-}
 .scene-stage {
   position: absolute;
   box-shadow: 0 0 40px rgba(20, 10, 4, 0.6);

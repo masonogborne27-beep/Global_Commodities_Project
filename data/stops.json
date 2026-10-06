@@ -33,7 +33,6 @@
         "credit": "AI-generated illustration (Canva), styled after William Clark, Ten Views in the Island of Antigua (1823)",
         "license": "Made for this project",
         "sourceUrl": "",
-        "fit": "whole",
         "animate": {
           "sway": [
             { "box": [0.0, 0.0, 0.36, 0.38], "amount": 1.0 },
@@ -88,7 +87,7 @@
             ] }
           ]
         },
-        "pan": { "from": [0.5, 0.5], "to": [0.56, 0.48], "zoomFrom": 1.0, "zoomTo": 1.08, "seconds": 40 },
+        "pan": { "from": [0.34, 0.52], "to": [0.66, 0.48], "zoomFrom": 1.08, "zoomTo": 1.14, "seconds": 45 },
         "hotspots": []
       },
       "narrative": [
