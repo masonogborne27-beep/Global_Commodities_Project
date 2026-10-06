@@ -13,6 +13,7 @@ index.html          page structure (title card, map, panel, Sources dialog)
 css/style.css       all styling (colors are variables at the top)
 js/main.js          map drawing and animation; you shouldn't need to edit this
 js/detail.js        the detailed map (terrain, rivers, labels)
+js/scene-anim.js    brings a scene's painting to life (breeze, clouds, smoke, birds)
 data/stops.json     ALL historical content: text, dates, coordinates, images, sources
 data/routes.json    the trade routes drawn between places
 data/labels.json    names of seas, islands and mountains shown on the map
@@ -147,6 +148,16 @@ Add a `scene` block to the stop in `data/stops.json`:
 - **`fallbackImage`** (optional) is shown if `image` can't be found.
 - **`fit`** (optional): `"whole"` shows the entire picture, with a soft blurred copy filling any space around it. Leave it out to fill the screen (cropping the edges if needed).
 - **`hotspots`** can be an empty list `[]` for a picture with no clickable dots.
+- **`animate`** (optional) brings the picture to life in the browser (`js/scene-anim.js`). Each part is optional, and every box is `[left, top, right, bottom]` in fractions of the picture:
+  - `sway`: trees or palms that move in a breeze, each `{ "box": [...], "amount": 1 }` (bigger `amount` = more movement; up to 6). The top of each box moves most, so draw the box from the treetops down.
+  - `sky`: a box where soft clouds drift and their shadows pass.
+  - `ground`: a box where sunlight flickers through the leaves.
+  - `shimmer`: boxes with heat haze, e.g. over beans drying in the sun (up to 3).
+  - `smoke`: points `[across, down]` where smoke curls up, e.g. a chimney.
+  - `birds`: `{ "count": 3, "band": [...] }`, birds gliding across that band of sky.
+  - `motes`: `{ "box": [...], "count": 28 }`, dust drifting in the light.
+
+  Nothing moves when the viewer's device is set to reduce motion, or while the placeholder picture is showing. People in the picture are left still on purpose: bending painted figures looks strange rather than alive.
 - **`pan`** (optional) is the slow drift: it moves from the point `from` to the point `to`, zooming from `zoomFrom` to `zoomTo`, over `seconds`, then back. Points are fractions of the picture, `[across, down]`, so `[0, 0]` is the top-left corner and `[1, 1]` the bottom-right. Leave `pan` out for a still picture with a gentle breathe.
 - **`hotspots`** are the clickable pins, also placed as fractions of the picture. To find a position, open the image, note where the thing is as a share of the width and height, and round to two decimals. Each needs a `label` (shown under the pin) and `text` (shown when clicked).
 - Use a picture at least 1600 px wide so it stays sharp full-screen, and keep it under about 800 KB.

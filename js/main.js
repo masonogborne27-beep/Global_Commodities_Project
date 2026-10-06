@@ -998,6 +998,7 @@
     stage.style.setProperty('--kb-y1', `${y1}px`);
     stage.style.setProperty('--kb-s1', s1);
     stage.style.setProperty('--kb-dur', `${Number.isFinite(pan.seconds) ? clamp(pan.seconds, 5, 300) : 45}s`);
+    if (window.CacaoScene) CacaoScene.resize();
   }
 
   function renderSceneCaption(stop) {
@@ -1102,6 +1103,11 @@
     if (mobile.matches) els.panel.style.setProperty('--sheet-h', '34dvh');
     layoutScene();
 
+    // Bring the painting to life (see js/scene-anim.js), already moving as it grows in.
+    if (window.CacaoScene && sc.animate && !sc.isFallback && !reduceMotion.matches) {
+      CacaoScene.start(els.sceneStage, sc.img, sc.animate);
+    }
+
     const [ox, oy] = sceneOrigin(stop);
     scene.style.transformOrigin = `${ox}px ${oy}px`;
     scene.classList.remove('is-leaving', 'is-panning');
@@ -1170,6 +1176,7 @@
       if (state.scene) return; // a new scene started meanwhile
     }
     scene.classList.remove('is-active', 'is-leaving');
+    if (window.CacaoScene) CacaoScene.stop();
     scene.style.transition = '';
     scene.style.transform = '';
     scene.style.opacity = '';
