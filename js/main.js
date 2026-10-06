@@ -68,7 +68,6 @@
     sceneBack: $('#scene-back'),
     sceneCaption: $('#scene-caption'),
     scenePopover: $('#scene-popover'),
-    sceneBackdrop: $('#scene-backdrop'),
     diveMist: $('#dive-mist'),
     diveMistNear: $('#dive-mist-near'),
     diveWhiteout: $('#dive-whiteout')
@@ -400,6 +399,12 @@
         state.gMap.attr('transform', event.transform);
         updateOverlay();
         if (window.CacaoDetail) CacaoDetail.frame();
+        // Zooming well out from a stop by hand closes its information panel.
+        if (event.sourceEvent && state.closeK && isPanelOpen() && !state.scene &&
+            event.transform.k < state.closeK * 0.5) {
+          closePanel();
+          showHint();
+        }
       });
     svg.call(state.zoom).on('dblclick.zoom', null);
   }
@@ -802,6 +807,7 @@
 
     renderStopPanel(stop);
     openPanel();
+    state.closeK = closeUp.k;
 
     // A stop with a scene (and no routes still to draw) is one continuous move:
     // the camera speeds into the island without stopping and dives straight
@@ -947,11 +953,11 @@
     const W = Math.max(120, r.x1 - r.x0);
     const H = Math.max(120, r.y1 - r.y0);
     // Fill the area if that keeps every hotspot in view; otherwise shrink just
-    // enough to show them all (the blurred backdrop fills the rest).
+    // enough to show them all.
     const cover = Math.max(W / nw, H / nh);
     const contain = Math.min(W / nw, H / nh);
     const hs = sc.hotspots;
-    // "fit": "whole" shows the entire picture (the blurred backdrop fills the edges).
+    // "fit": "whole" shows the entire picture, with plain edges where it doesn't fill the area.
     let fit = sc.fit === 'whole' ? contain : cover;
     if (sc.fit !== 'whole' && hs.length) {
       const spanX = Math.max(...hs.map((h) => h.x)) - Math.min(...hs.map((h) => h.x));
@@ -1110,61 +1116,54 @@
 
   // One continuous camera move between the map and a scene, like flying down
   // through the clouds over the island:
-  //   1. The camera keeps zooming toward the scene's spot. The picture sits on the
-  //      map there, scaled exactly with the zoom, showing as a soft spot that never
-  //      reaches its own edges, while banks of cloud start rushing past.
-  //   2. As the picture reaches full size the cloud thickens to a white-out, which
-  //      hides the moment the map hands over to the picture.
-  //   3. The cloud clears over the painting while it keeps growing the last few
-  //      per cent, so the zoom never stops between the map and the scene.
+  //   1. The camera keeps zooming toward the scene's spot while banks of cloud
+  //      rush past and thicken into a white-out.
+  //   2. Behind the white, the map hands over to the picture.
+  //   3. The cloud clears over the picture, which is still zooming in, so the
+  //      move never stops between the map and the scene.
   // Leaving runs the same move backwards. "base" is the map view at the start of
   // the dive in (or at the end of the dive out).
   const DIVE_SPLIT = 0.5; // share of the time spent zooming; the rest is the cloud clearing
-  const DIVE_HANDOVER = 0.92; // picture size at the white-out; it grows to 1 as the cloud clears
 
   function runDive(stop, inward, base, duration) {
     const scene = els.scene;
+    const stage = els.sceneStage;
     const b = sceneBase(stop);
     const Z = CONFIG.sceneDiveZoom;
     const [ox, oy] = b ? base.apply(b) : [state.width / 2, state.height / 2];
-    for (const node of [scene, els.diveMist, els.diveMistNear]) node.style.transformOrigin = `${ox}px ${oy}px`;
-    scene.style.setProperty('--mx', `${(ox / state.width) * 100}%`);
-    scene.style.setProperty('--my', `${(oy / state.height) * 100}%`);
+    for (const node of [els.diveMist, els.diveMistNear]) node.style.transformOrigin = `${ox}px ${oy}px`;
     els.diveWhiteout.style.setProperty('--wx', `${(ox / state.width) * 100}%`);
     els.diveWhiteout.style.setProperty('--wy', `${(oy / state.height) * 100}%`);
     scene.style.transition = 'none';
+    scene.style.transform = '';
 
-    // The soft spot stays inside the picture's nearest edge (and the screen's).
-    const st = els.sceneStage;
-    const pcx = parseFloat(st.style.left) || state.width / 2;
-    const pcy = parseFloat(st.style.top) || state.height / 2;
-    const pw = (parseFloat(st.style.width) || state.width) / 2;
-    const ph = (parseFloat(st.style.height) || state.height) / 2;
-    const near = Math.max(40, Math.min(ox - (pcx - pw), pcx + pw - ox, oy - (pcy - ph), pcy + ph - oy,
-      ox, oy, state.width - ox, state.height - oy));
+    // The picture's resting place is the start of its slow drift, which is a
+    // little larger than the screen. While the cloud clears it zooms into that
+    // from exactly filling the screen, so no edge ever shows.
+    const kb = (name, d) => { const v = parseFloat(stage.style.getPropertyValue(name)); return Number.isFinite(v) ? v : d; };
+    const s0 = Math.max(1, kb('--kb-s0', 1));
+    const x0 = kb('--kb-x0', 0);
+    const y0 = kb('--kb-y0', 0);
 
     // u runs 0 → 1 from "on the map" to "in the scene", whichever way we are going.
     const apply = (u) => {
       const a = clamp(u / DIVE_SPLIT, 0, 1);
       const e = inward ? 1 - Math.pow(1 - a, 3) : d3.easeCubicInOut(a);
-      const s = Math.pow(Z, e - 1); // the picture's size relative to the white-out: 1 = handover
-      const clearing = smooth(DIVE_SPLIT, 1, u); // 0 until the zoom ends, then 0 → 1
       const c = clamp((u - DIVE_SPLIT) / (1 - DIVE_SPLIT), 0, 1);
-      const grow = DIVE_HANDOVER + (1 - DIVE_HANDOVER) * (1 - Math.pow(1 - c, 3));
 
       if (b) {
         const k = base.k * Math.pow(Z, e);
         setCamera(d3.zoomIdentity.translate(ox - k * b[0], oy - k * b[1]).scale(k));
       }
-      scene.style.transform = `scale(${u < DIVE_SPLIT ? s * DIVE_HANDOVER : grow})`;
-      scene.style.opacity = smooth(0.18, 0.75, e).toFixed(3);
-      const open = u >= DIVE_SPLIT; // after the white-out the whole picture is shown
-      scene.style.setProperty('--r0', open ? '9999px' : `${(near * (0.12 + 0.6 * smooth(0.2, 0.95, s))).toFixed(1)}px`);
-      scene.style.setProperty('--r1', open ? '9999px' : `${(near * 0.95).toFixed(1)}px`);
-      scene.style.setProperty('--bd', open ? '1' : '0');
+      const open = u >= DIVE_SPLIT; // the picture only shows once the white-out hides the map
+      scene.style.opacity = open ? '1' : '0';
+      const sc = 1 + (s0 - 1) * (1 - Math.pow(1 - c, 3));
+      const f = s0 > 1 ? (sc - 1) / (s0 - 1) : 1;
+      stage.style.transform = `translate(-50%, -50%) translate(${(x0 * f).toFixed(1)}px, ${(y0 * f).toFixed(1)}px) scale(${sc.toFixed(4)})`;
 
-      const banks = u < DIVE_SPLIT ? smooth(0.1, 0.4, s) : 1 - clearing;
-      const white = u < DIVE_SPLIT ? 0.985 * smooth(0.82, 1, s) : 0.985 * (1 - smooth(0, 0.75, c));
+      // Cloud: thickens through the zoom to a full white-out, then clears.
+      const white = u < DIVE_SPLIT ? smooth(0.25, 1, a) : 1 - smooth(0, 0.8, c);
+      const banks = u < DIVE_SPLIT ? smooth(0.05, 0.6, a) : 1 - smooth(0, 0.6, c);
       els.diveMist.style.opacity = (0.95 * banks).toFixed(3);
       els.diveMist.style.transform = `scale(${(0.6 + 4 * u).toFixed(3)})`;
       els.diveMistNear.style.opacity = (0.85 * banks).toFixed(3);
@@ -1183,7 +1182,7 @@
         state.diveTimer = null;
         apply(inward ? 1 : 0);
         scene.classList.remove('is-diving');
-        if (inward) scene.style.transform = '';
+        stage.style.transform = ''; // hand back to the slow drift, which starts at the same place
         quiet();
         // Hand the final camera position back to d3-zoom (fires the usual events once).
         d3.select(els.mapSvg).call(state.zoom.transform, state.transform);
@@ -1213,7 +1212,6 @@
     const scene = els.scene;
     els.sceneImg.src = sc.image;
     els.sceneImg.alt = sc.alt || '';
-    els.sceneBackdrop.src = sc.image;
     renderHotspots(stop);
     renderSceneCaption(stop);
     closeHotspot();
@@ -1268,8 +1266,9 @@
         scene.style.opacity = '0';
         await delay(dur);
       } else {
-        // Back to the map: the dive in reverse, ending on the island close-up.
-        await runDive(stop, false, fitTransform(stopFramePts(stop), stop.zoom, isPanelOpen()), dur);
+        // Back to the map: the dive in reverse, ending on the island close-up
+        // with the information panel closed.
+        await runDive(stop, false, fitTransform(stopFramePts(stop), stop.zoom, false), dur);
       }
       if (state.scene) return; // a new scene started meanwhile
     }
@@ -1282,8 +1281,9 @@
     scene.style.opacity = '';
     if (!fast) {
       els.sceneImg.removeAttribute('src');
-      els.sceneBackdrop.removeAttribute('src');
       els.sceneHotspots.replaceChildren();
+      closePanel();
+      showHint();
       focusAfterScene();
     }
   }
@@ -1332,6 +1332,7 @@
 
   function closePanel(opts) {
     const wasOpen = isPanelOpen();
+    state.closeK = null;
     els.panel.classList.remove('is-open');
     els.panel.inert = true;
     document.body.classList.remove('panel-open');

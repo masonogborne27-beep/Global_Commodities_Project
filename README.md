@@ -146,7 +146,7 @@ Add a `scene` block to the stop in `data/stops.json`:
 - **`coordinates`** (optional) is where on the map the scene is, as `[longitude, latitude]`; the camera dives toward it. Without it, the camera dives toward the stop's marker.
 - **`note`** (optional) is a short highlighted line in the caption, e.g. to say a picture is a modern illustration.
 - **`fallbackImage`** (optional) is shown if `image` can't be found.
-- **`fit`** (optional): `"whole"` shows the entire picture, with a soft blurred copy filling any space around it. Leave it out to fill the screen (cropping the edges if needed).
+- **`fit`** (optional): leave it out to fill all the space beside the panel (cropping the picture's edges if needed). `"whole"` shows the entire picture instead, with plain dark edges where it doesn't fill the space.
 - **`hotspots`** can be an empty list `[]` for a picture with no clickable dots.
 - **`animate`** (optional) brings the picture to life in the browser (`js/scene-anim.js`). Each part is optional, and every box is `[left, top, right, bottom]` in fractions of the picture:
   - `sway`: trees or palms that move in a breeze, each `{ "box": [...], "amount": 1 }` (bigger `amount` = more movement; up to 6). The top of each box moves most, so draw the box from the treetops down.
@@ -166,7 +166,7 @@ Add a `scene` block to the stop in `data/stops.json`:
     Styles: `"chop"` (slow lift, quick strike), `"work"` (a steady reach and return) and `"sway"` (an easy to-and-fro, for standing or breathing). Keep the moves small: a part never moves more than about a third of its `width` (bigger values are scaled down so the picture doesn't smear), so to move a piece further, make its `width` bigger. Up to 20 parts in all.
 
   Nothing moves when the viewer's device is set to reduce motion, or while the placeholder picture is showing.
-- **`pan`** (optional) is the slow drift: it moves from the point `from` to the point `to`, zooming from `zoomFrom` to `zoomTo`, over `seconds`, then back. Points are fractions of the picture, `[across, down]`, so `[0, 0]` is the top-left corner and `[1, 1]` the bottom-right. Leave `pan` out for a still picture with a gentle breathe.
+- **`pan`** (optional) is the slow drift: it moves from the point `from` to the point `to`, zooming from `zoomFrom` to `zoomTo`, over `seconds`, then back. Points are fractions of the picture, `[across, down]`, so `[0, 0]` is the top-left corner and `[1, 1]` the bottom-right. Leave `pan` out for a still picture with a gentle breathe. Keep `zoomFrom` a little above 1 (e.g. `1.08`): as the cloud clears after the dive, the picture zooms in from filling the screen to that size, so the zoom carries on into the scene.
 - **`hotspots`** are the clickable pins, also placed as fractions of the picture. To find a position, open the image, note where the thing is as a share of the width and height, and round to two decimals. Each needs a `label` (shown under the pin) and `text` (shown when clicked).
 - Use a picture at least 1600 px wide so it stays sharp full-screen, and keep it under about 800 KB.
 - The credit and license appear in the scene's caption and in the **Sources** dialog automatically.
