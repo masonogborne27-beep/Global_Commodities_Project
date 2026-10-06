@@ -70,6 +70,7 @@
     scenePopover: $('#scene-popover'),
     diveMist: $('#dive-mist'),
     diveMistNear: $('#dive-mist-near'),
+    sceneInfo: $('#scene-info'),
     diveWhiteout: $('#dive-whiteout')
   };
 
@@ -431,7 +432,12 @@
       .scaleExtent([state.kMin, state.kMax])
       .translateExtent(b);
 
-    state.markers.forEach((m) => { m.base = state.projection(m.coordinates); });
+    state.markers.forEach((m) => { m.base = state.projection(m.coordinates); m.lab = null; });
+    if (document.fonts && !state.fontsWatched) {
+      // Label sizes change once the display font arrives.
+      state.fontsWatched = true;
+      document.fonts.ready.then(() => { state.markers.forEach((m) => { m.lab = null; }); declutterLabels(); });
+    }
     state.routes.forEach(computeRouteBase);
     if (window.CacaoDetail) CacaoDetail.reset();
     reframe();
@@ -601,6 +607,7 @@
       const status = isNext ? ' (next stop)' : visited ? ' (visited)' : ' (not reached yet)';
       b.setAttribute('aria-label', `Stop ${i + 1} of ${n}, ${m.name}${title}${status}`);
     });
+    declutterLabels();
   }
 
   function onMarker(index) {
@@ -631,9 +638,43 @@
     for (const m of state.markers) {
       if (!m.base || !m.el) continue;
       const [x, y] = t.apply(m.base);
+      m.x = x;
+      m.y = y;
       m.el.style.transform = `translate(${x}px, ${y}px)`;
     }
     for (const r of state.routes) renderRoute(r);
+    declutterLabels();
+  }
+
+  // Place names stay beside their pins, but where two would overlap (stops close
+  // together, zoomed out on a phone) the less important one steps aside: the
+  // current stop's name wins, then the next stop's, then the earlier stops'.
+  function declutterLabels() {
+    const rank = (m) => (m.el.classList.contains('is-current') ? 0 : m.el.classList.contains('is-next') ? 1 : 2);
+    const shown = state.markers
+      .filter((m) => m.el && Number.isFinite(m.x) && !m.el.classList.contains('is-locked'))
+      .sort((a, b) => rank(a) - rank(b) || a.stop.index - b.stop.index);
+    // Pins count as taken space too, so a name never hides under another pin.
+    const pin = 12;
+    const placed = shown.map((m) => [m.x - pin, m.y - pin, m.x + pin, m.y + pin, m]);
+    for (const m of shown) {
+      if (!m.lab) {
+        // Where the label sits relative to the centre of its pin (measured once; reset on resize).
+        const r = m.el.querySelector('.marker-label').getBoundingClientRect();
+        const p = m.el.getBoundingClientRect();
+        if (!r.width) continue; // not on screen yet (before the tour starts); measure later
+        m.lab = { dx: r.left - p.left - p.width / 2, dy: r.top - p.top - p.height / 2, w: r.width, h: r.height };
+      }
+      const x0 = m.x + m.lab.dx;
+      const y0 = m.y + m.lab.dy;
+      const box = [x0 + 1, y0 + 1, x0 + m.lab.w - 1, y0 + m.lab.h - 1]; // labels may touch, not overlap
+      // The current and next stops always keep their names; others give way, or hide if they'd run off screen.
+      const off = box[0] < 0 || box[1] < 0 || box[2] > state.width || box[3] > state.height;
+      const clash = rank(m) > 1 && (off ||
+        placed.some((b) => b[4] !== m && box[0] < b[2] && box[2] > b[0] && box[1] < b[3] && box[3] > b[1]));
+      m.el.classList.toggle('label-hidden', clash);
+      if (!clash) placed.push(box);
+    }
   }
 
   function renderRoute(r) {
@@ -1293,7 +1334,7 @@
      ------------------------------------------------------------------------ */
 
   function showHint() {
-    if (!state.started || isPanelOpen()) return;
+    if (!state.started || isPanelOpen() || state.scene) return;
     const next = !state.finished && state.stops[state.reached + 1];
     els.hint.replaceChildren();
     if (next) {
@@ -1338,8 +1379,12 @@
     document.body.classList.remove('panel-open');
     layoutScene();
     if (opts && opts.returnFocus && wasOpen) {
-      showHint();
-      focusNextMarker();
+      // Inside a scene the map can't be used, so focus the button that brings the panel back.
+      if (state.scene) els.sceneInfo.focus({ preventScroll: true });
+      else {
+        showHint();
+        focusNextMarker();
+      }
     }
   }
 
@@ -1669,6 +1714,10 @@
       else if (isPanelOpen()) closePanel({ returnFocus: true });
     });
     els.sceneBack.addEventListener('click', () => leaveScene(false));
+    els.sceneInfo.addEventListener('click', () => openPanel());
+    els.sceneStage.addEventListener('transitionend', (e) => {
+      if (e.target === els.sceneStage && e.propertyName === 'width' && window.CacaoScene) CacaoScene.resize();
+    });
     els.scene.addEventListener('click', (e) => {
       if (!els.scenePopover.hidden && !els.scenePopover.contains(e.target) && !e.target.closest('.hotspot')) closeHotspot();
     });
