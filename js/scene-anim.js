@@ -8,6 +8,9 @@
      - "sky":     soft clouds drift and their shadows pass
      - "ground":  dappled sunlight flickers through the leaves
      - "shimmer": heat haze rises off sun-baked surfaces
+     - "figures": the people at work. Each moving part (an arm, a head, a
+                  whole body) is a soft band along a short path that turns
+                  about a joint, or slides, in a working rhythm.
 
    On top, a second canvas draws small moving things:
 
@@ -25,6 +28,7 @@
 
   const MAX_SWAY = 6;
   const MAX_SHIMMER = 3;
+  const MAX_PARTS = 20; // moving body parts; fewer on graphics cards with little room
 
   const VERT = `
     attribute vec2 pos;
@@ -34,8 +38,8 @@
       gl_Position = vec4(pos, 0.0, 1.0);
     }`;
 
-  const FRAG = `
-    precision mediump float;
+  const frag = (maxParts) => `
+    precision highp float;
     varying vec2 uv;
     uniform sampler2D img;
     uniform float t;
@@ -47,6 +51,11 @@
     uniform vec4 shimmer[${MAX_SHIMMER}];
     uniform vec4 sky;
     uniform vec4 ground;
+    uniform int nParts;
+    uniform vec4 partPath[${Math.max(1, maxParts)}];  // path points a, b
+    uniform vec4 partJoint[${Math.max(1, maxParts)}]; // path point c, joint
+    uniform vec4 partMove[${Math.max(1, maxParts)}];  // width, turn, slide x, slide y
+    uniform vec4 partBeat[${Math.max(1, maxParts)}];  // speed, phase, style, rests
 
     float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
     float noise(vec2 p) {
@@ -68,6 +77,31 @@
       vec2 a = smoothstep(r.xy - f, r.xy + f, p);
       vec2 b = 1.0 - smoothstep(r.zw - f, r.zw + f, p);
       return a.x * a.y * b.x * b.y;
+    }
+
+    float segDist(vec2 q, vec2 a, vec2 b) {
+      vec2 ab = b - a;
+      float h = clamp(dot(q - a, ab) / max(dot(ab, ab), 1e-6), 0.0, 1.0);
+      return length(q - a - ab * h);
+    }
+    // How far into its movement a part is at time t.
+    //   style 0 "sway":  an easy to-and-fro, -1 to 1
+    //   style 1 "chop":  a slow lift (0 to 1) and a quick strike back to rest
+    //   style 2 "work":  a steady reach and return, 0 to 1
+    // With "rests", the person stops for a moment now and then.
+    float beat(vec4 b) {
+      float x = t * b.x + b.y;
+      float m;
+      if (b.z < 0.5) {
+        m = 0.75 * sin(6.2832 * x) + 0.25 * sin(6.2832 * x * 1.618 + 1.3);
+      } else if (b.z < 1.5) {
+        float f = fract(x);
+        m = f < 0.78 ? smoothstep(0.0, 0.78, f) : 1.0 - smoothstep(0.78, 0.9, f);
+      } else {
+        m = 0.5 - 0.5 * cos(6.2832 * x);
+      }
+      if (b.w > 0.5) m *= smoothstep(-0.35, 0.25, sin(t * 0.23 + b.y * 9.1));
+      return m;
     }
 
     void main() {
@@ -95,6 +129,27 @@
         off.x += m * 0.0011 * sin(p.y * 170.0 - t * 6.0) * noise(vec2(p.x * 40.0, t));
         off.y += m * 0.0008 * sin(p.x * 90.0 + t * 4.0);
       }
+
+      // The people at work: each part turns about its joint or slides. The
+      // picture is looked up "backwards", so a pixel shows what the part
+      // would have left there after moving.
+      vec2 q = vec2(p.x * aspect, p.y);
+      vec2 fo = vec2(0.0);
+      for (int i = 0; i < ${Math.max(1, maxParts)}; i++) {
+        if (i >= nParts) break;
+        vec4 ab = partPath[i];
+        vec4 cj = partJoint[i];
+        vec4 mv = partMove[i];
+        float d = min(segDist(q, ab.xy, ab.zw), segDist(q, ab.zw, cj.xy));
+        if (d >= mv.x) continue;
+        float w = 1.0 - smoothstep(mv.x * 0.3, mv.x, d);
+        float m = beat(partBeat[i]) * w;
+        float a = -mv.y * m;
+        vec2 r = q - cj.zw;
+        vec2 src = cj.zw + vec2(r.x * cos(a) - r.y * sin(a), r.x * sin(a) + r.y * cos(a)) - mv.zw * m;
+        fo += src - q;
+      }
+      off += vec2(fo.x / aspect, fo.y);
 
       vec3 c = texture2D(img, clamp(p + off, 0.001, 0.999)).rgb;
 
@@ -172,7 +227,7 @@
       sway: [], shimmer: [],
       sky: rect(config.sky) || [0, 0, 0, 0],
       ground: rect(config.ground) || [0, 0, 0, 0],
-      smoke: [], birds: [], motes: null
+      smoke: [], birds: [], motes: null, parts: []
     };
     for (const s of Array.isArray(config.sway) ? config.sway : []) {
       const r = rect(s && s.box);
@@ -185,6 +240,25 @@
     for (const s of Array.isArray(config.smoke) ? config.smoke : []) {
       const at = point(s);
       if (at) cfg.smoke.push(at);
+    }
+    for (const f of Array.isArray(config.figures) ? config.figures : []) {
+      for (const pt of Array.isArray(f && f.parts) ? f.parts : []) {
+        const path = (Array.isArray(pt && pt.path) ? pt.path : []).map(point).filter(Boolean).slice(0, 3);
+        const joint = point(pt && pt.joint) || path[0];
+        if (path.length < 2 || !joint || cfg.parts.length >= MAX_PARTS) continue;
+        while (path.length < 3) path.push(path[path.length - 1]);
+        const num = (v, d) => (Number.isFinite(v) ? v : d);
+        const slide = point(pt.slide) || [0, 0];
+        cfg.parts.push({
+          path, joint, slide,
+          width: Math.max(0.005, num(pt.width, 0.04)),
+          turn: num(pt.turn, 0) * Math.PI / 180,
+          speed: Math.max(0, num(pt.speed, num(f.speed, 0.3))),
+          phase: num(pt.phase, num(f.phase, 0)),
+          style: { sway: 0, chop: 1, work: 2 }[pt.style || f.style] ?? 0,
+          rests: (pt.rests ?? f.rests) ? 1 : 0
+        });
+      }
     }
     const birds = config.birds || {};
     const band = rect(birds.band) || [0, 0.05, 1, 0.3];
@@ -212,8 +286,14 @@
       }
       return sh;
     };
+    // Each moving part needs 4 slots for its settings; leave room for the rest.
+    const room = Math.floor(((ctx.getParameter(ctx.MAX_FRAGMENT_UNIFORM_VECTORS) || 16) - 28) / 4);
+    const maxParts = Math.max(0, Math.min(MAX_PARTS, room, cfg.parts.length));
+    const highp = ctx.getShaderPrecisionFormat &&
+      ctx.getShaderPrecisionFormat(ctx.FRAGMENT_SHADER, ctx.HIGH_FLOAT);
+    const src = frag(maxParts);
     const vs = compile(ctx.VERTEX_SHADER, VERT);
-    const fs = compile(ctx.FRAGMENT_SHADER, FRAG);
+    const fs = compile(ctx.FRAGMENT_SHADER, highp && highp.precision > 0 ? src : src.replace('precision highp', 'precision mediump'));
     if (!vs || !fs) return null;
     const prog = ctx.createProgram();
     ctx.attachShader(prog, vs);
@@ -250,6 +330,30 @@
       t: u('t'), aspect: u('aspect'), nSway: u('nSway'), sway: u('sway'), swayAmp: u('swayAmp'),
       nShimmer: u('nShimmer'), shimmer: u('shimmer'), sky: u('sky'), ground: u('ground')
     };
+    const aspect = (img.naturalWidth || 16) / (img.naturalHeight || 9);
+    const parts = cfg.parts.slice(0, maxParts);
+    const pp = new Float32Array(Math.max(1, maxParts) * 4);
+    const pj = new Float32Array(Math.max(1, maxParts) * 4);
+    const pm = new Float32Array(Math.max(1, maxParts) * 4);
+    const pb = new Float32Array(Math.max(1, maxParts) * 4);
+    parts.forEach((pt, i) => {
+      // Across is stretched by the picture's shape so turns stay round.
+      const [a, b, c] = pt.path;
+      // A part may move only about a third of its width; any more and its soft
+      // edge folds over and smears the picture, so bigger moves are scaled down.
+      const reach = Math.max(...[a, b, c].map((q) => Math.hypot((q[0] - pt.joint[0]) * aspect, q[1] - pt.joint[1]))) + pt.width;
+      const moves = Math.abs(pt.turn) * reach + Math.hypot(pt.slide[0] * aspect, pt.slide[1]);
+      const k = moves > 0.35 * pt.width ? (0.35 * pt.width) / moves : 1;
+      pp.set([a[0] * aspect, a[1], b[0] * aspect, b[1]], i * 4);
+      pj.set([c[0] * aspect, c[1], pt.joint[0] * aspect, pt.joint[1]], i * 4);
+      pm.set([pt.width, pt.turn * k, pt.slide[0] * aspect * k, pt.slide[1] * k], i * 4);
+      pb.set([pt.speed, pt.phase, pt.style, pt.rests], i * 4);
+    });
+    ctx.uniform1i(u('nParts'), parts.length);
+    ctx.uniform4fv(u('partPath'), pp);
+    ctx.uniform4fv(u('partJoint'), pj);
+    ctx.uniform4fv(u('partMove'), pm);
+    ctx.uniform4fv(u('partBeat'), pb);
     const swayRects = new Float32Array(MAX_SWAY * 4);
     const swayAmps = new Float32Array(MAX_SWAY);
     cfg.sway.forEach((s, i) => { swayRects.set(s.box, i * 4); swayAmps[i] = 0.0032 * s.amount; });
@@ -263,7 +367,7 @@
     ctx.uniform4fv(uni.shimmer, shimRects);
     ctx.uniform4fv(uni.sky, new Float32Array(cfg.sky));
     ctx.uniform4fv(uni.ground, new Float32Array(cfg.ground));
-    ctx.uniform1f(uni.aspect, (img.naturalWidth || 16) / (img.naturalHeight || 9));
+    ctx.uniform1f(uni.aspect, aspect);
     return { ctx, uni };
   }
 

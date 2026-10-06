@@ -13,7 +13,7 @@ index.html          page structure (title card, map, panel, Sources dialog)
 css/style.css       all styling (colors are variables at the top)
 js/main.js          map drawing and animation; you shouldn't need to edit this
 js/detail.js        the detailed map (terrain, rivers, labels)
-js/scene-anim.js    brings a scene's painting to life (breeze, clouds, smoke, birds)
+js/scene-anim.js    brings a scene's painting to life (people at work, breeze, clouds, smoke, birds)
 data/stops.json     ALL historical content: text, dates, coordinates, images, sources
 data/routes.json    the trade routes drawn between places
 data/labels.json    names of seas, islands and mountains shown on the map
@@ -156,8 +156,16 @@ Add a `scene` block to the stop in `data/stops.json`:
   - `smoke`: points `[across, down]` where smoke curls up, e.g. a chimney.
   - `birds`: `{ "count": 3, "band": [...] }`, birds gliding across that band of sky.
   - `motes`: `{ "box": [...], "count": 28 }`, dust drifting in the light.
+  - `figures`: the people at work. Each figure has a `name` (for your reference), a `style`, a `speed` (strokes per second, e.g. `0.3`), an optional `phase` (0 to 1, so people don't move in step), `rests: true` to make them pause now and then, and a list of `parts`. Each part is one moving piece of the body:
+    - `path`: 2 or 3 points `[across, down]` along the piece, e.g. shoulder → hand → tip of the machete.
+    - `joint`: the point it turns about, e.g. the shoulder, neck or hips.
+    - `width`: how far either side of the path is moved, as a share of the picture's height (about `0.03` for an arm, `0.07` for a body).
+    - `turn`: how far it turns, in degrees (positive is clockwise). Optional `slide: [across, down]` moves it instead of turning it.
+    - A part can also have its own `style`, `speed` and `phase`.
 
-  Nothing moves when the viewer's device is set to reduce motion, or while the placeholder picture is showing. People in the picture are left still on purpose: bending painted figures looks strange rather than alive.
+    Styles: `"chop"` (slow lift, quick strike), `"work"` (a steady reach and return) and `"sway"` (an easy to-and-fro, for standing or breathing). Keep the moves small: a part never moves more than about a third of its `width` (bigger values are scaled down so the picture doesn't smear), so to move a piece further, make its `width` bigger. Up to 20 parts in all.
+
+  Nothing moves when the viewer's device is set to reduce motion, or while the placeholder picture is showing.
 - **`pan`** (optional) is the slow drift: it moves from the point `from` to the point `to`, zooming from `zoomFrom` to `zoomTo`, over `seconds`, then back. Points are fractions of the picture, `[across, down]`, so `[0, 0]` is the top-left corner and `[1, 1]` the bottom-right. Leave `pan` out for a still picture with a gentle breathe.
 - **`hotspots`** are the clickable pins, also placed as fractions of the picture. To find a position, open the image, note where the thing is as a share of the width and height, and round to two decimals. Each needs a `label` (shown under the pin) and `text` (shown when clicked).
 - Use a picture at least 1600 px wide so it stays sharp full-screen, and keep it under about 800 KB.
