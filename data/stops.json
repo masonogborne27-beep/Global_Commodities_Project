@@ -134,6 +134,76 @@
       "markers": [
         { "id": "goree", "name": "Gorée", "coordinates": [-17.398, 14.667], "labelPosition": "left" }
       ],
+      "scene": {
+        "image": "assets/images/goree-harbour-scene.jpg",
+        "coordinates": [-17.398, 14.667],
+        "alt": "Painted illustration of the French trading post on Gorée Island: on the beach a woman pounds millet in a tall wooden mortar while another sifts grain in a basket; African porters carry bales and goods to a painted pirogue drawn up on the sand; at a table under a fringed parasol a French clerk in a tricorne hat writes in a ledger beside an African trader in white robes. Along the shore a line of captive Africans is led under guard toward the boats. Pirogues rowed by African oarsmen cross the bay to a three-masted French ship at anchor, below a stone fort flying the white fleur-de-lis flag, with a baobab tree and colonial stone houses with wooden balconies on the right.",
+        "title": "The French trading post on Gorée",
+        "year": "c. 1760",
+        "note": "AI illustration made for this project, not a historical source",
+        "caption": "TODO: one or two sentences about what this picture shows (and that it is a modern reconstruction)",
+        "credit": "AI-generated illustration (Canva), styled after William Clark, Ten Views in the Island of Antigua (1823)",
+        "license": "Made for this project",
+        "sourceUrl": "",
+        "animate": {
+          "sway": [
+            { "box": [0.46, 0.16, 0.56, 0.26], "amount": 0.8 },
+            { "box": [0.57, 0.14, 0.68, 0.25], "amount": 0.4 },
+            { "box": [0.69, 0.0, 0.83, 0.2], "amount": 0.8 },
+            { "box": [0.415, 0.255, 0.45, 0.31], "amount": 2.0 },
+            { "box": [0.69, 0.55, 0.87, 0.64], "amount": 0.4 }
+          ],
+          "sky": [0.0, 0.0, 0.68, 0.33],
+          "shimmer": [[0.0, 0.53, 0.5, 0.585]],
+          "birds": { "count": 4, "band": [0.0, 0.03, 0.6, 0.25] },
+          "motes": { "box": [0.0, 0.45, 0.62, 0.95], "count": 18 },
+          "figures": [
+            { "name": "Woman pounding millet", "style": "chop", "speed": 0.7, "rests": true, "parts": [
+              {"path": [[0.108, 0.645], [0.111, 0.765]], "joint": [0.11, 0.75], "width": 0.03, "turn": 0, "slide": [0, -0.006]},
+              {"path": [[0.078, 0.676], [0.1, 0.69]], "joint": [0.076, 0.674], "width": 0.04, "turn": -4},
+              {"path": [[0.07, 0.62], [0.068, 0.75]], "joint": [0.066, 0.8], "width": 0.055, "turn": -1.5}
+            ] },
+            { "name": "Woman sifting grain", "style": "sway", "speed": 1.1, "phase": 0.3, "rests": true, "parts": [
+              {"path": [[0.16, 0.89], [0.226, 0.89]], "joint": [0.19, 0.89], "width": 0.04, "turn": 0, "slide": [0.006, 0]},
+              {"path": [[0.234, 0.79], [0.19, 0.865]], "joint": [0.234, 0.79], "width": 0.032, "turn": 2},
+              {"path": [[0.218, 0.74], [0.22, 0.77]], "joint": [0.226, 0.785], "width": 0.035, "turn": 1.5}
+            ] },
+            { "name": "Porter with a bale on his head", "style": "sway", "speed": 0.45, "parts": [
+              {"path": [[0.401, 0.6], [0.4, 0.78]], "joint": [0.4, 0.84], "width": 0.06, "turn": 1.2}
+            ] },
+            { "name": "Porter at the bow", "style": "sway", "speed": 0.3, "phase": 0.5, "parts": [
+              {"path": [[0.344, 0.665], [0.344, 0.78]], "joint": [0.344, 0.835], "width": 0.045, "turn": 1.5}
+            ] },
+            { "name": "Porters loading the pirogue", "style": "work", "speed": 0.35, "phase": 0.2, "rests": true, "parts": [
+              {"path": [[0.49, 0.66], [0.493, 0.74]], "joint": [0.495, 0.82], "width": 0.045, "turn": -3},
+              {"path": [[0.546, 0.66], [0.548, 0.74]], "joint": [0.55, 0.82], "width": 0.045, "turn": 2.5, "phase": 0.55}
+            ] },
+            { "name": "Captives led along the shore", "style": "sway", "speed": 0.9, "parts": [
+              {"path": [[0.515, 0.585], [0.62, 0.6]], "joint": [0.57, 0.6], "width": 0.04, "turn": 0, "slide": [0, -0.003]}
+            ] },
+            { "name": "French officer walking", "style": "sway", "speed": 0.9, "phase": 0.25, "parts": [
+              {"path": [[0.599, 0.6], [0.6, 0.66]], "joint": [0.6, 0.7], "width": 0.035, "turn": 0, "slide": [0, -0.003]}
+            ] },
+            { "name": "Clerk writing in the ledger", "style": "sway", "speed": 1.4, "rests": true, "parts": [
+              {"path": [[0.735, 0.755], [0.719, 0.776]], "joint": [0.735, 0.755], "width": 0.03, "turn": 4},
+              {"path": [[0.713, 0.67], [0.713, 0.705]], "joint": [0.718, 0.72], "width": 0.04, "turn": 2, "style": "work", "speed": 0.25}
+            ] },
+            { "name": "Trader talking", "style": "sway", "speed": 0.4, "phase": 0.6, "rests": true, "parts": [
+              {"path": [[0.8, 0.76], [0.79, 0.735]], "joint": [0.8, 0.762], "width": 0.03, "turn": 6},
+              {"path": [[0.811, 0.66], [0.811, 0.695]], "joint": [0.808, 0.715], "width": 0.04, "turn": 2}
+            ] },
+            { "name": "Pirogues on the bay", "style": "sway", "speed": 0.35, "parts": [
+              {"path": [[0.125, 0.62], [0.215, 0.62]], "joint": [0.17, 0.625], "width": 0.04, "turn": 0.8, "slide": [0, 0.002]},
+              {"path": [[0.215, 0.64], [0.335, 0.645]], "joint": [0.275, 0.645], "width": 0.04, "turn": 0.7, "slide": [0, 0.002], "phase": 0.4}
+            ] },
+            { "name": "Ship at anchor", "style": "sway", "speed": 0.12, "parts": [
+              {"path": [[0.165, 0.3], [0.165, 0.53]], "joint": [0.165, 0.56], "width": 0.1, "turn": 0.6}
+            ] }
+          ]
+        },
+        "pan": { "from": [0.36, 0.55], "to": [0.62, 0.5], "zoomFrom": 1.08, "zoomTo": 1.14, "seconds": 45 },
+        "hotspots": []
+      },
       "narrative": [
         "TODO: narrative paragraph 1 about the forced-labor side of the triangular trade",
         "TODO: narrative paragraph 2 about ___"
