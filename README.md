@@ -4,7 +4,7 @@ An animated world map that follows cacao and chocolate through the French empire
 
 > How did early modern empires help create and shape a globalized economy?
 
-Our case study is French cacao production in Martinique. The viewer follows six stops in order: Martinique → West Africa → Nantes & Bordeaux → Bayonne → Paris & Versailles → the rest of Europe. At the end, the map zooms out to show the whole trade network.
+Our case study is French cacao production in Martinique. The viewer follows five stops in order: Saint-Pierre, Martinique (introduction) → Nantes, where French slave-trading voyages departed → West Africa (Gorée) → back to Saint-Pierre for enslaved labor and cacao production → Bordeaux, where Martinique's cacao arrived in France. At the end, the map zooms out to show the whole trade network. A Paris & Versailles stop is kept in the file as a hidden placeholder.
 
 It is a plain HTML/CSS/JavaScript site with no build step, so it runs on GitHub Pages as-is.
 
@@ -34,7 +34,7 @@ Any text that starts with `TODO` shows up **highlighted in yellow** on the site.
 | Part | What it controls |
 |---|---|
 | `intro` | The opening title card: `title`, `subtitle`, `question`, `authors`, `buttonLabel`, and the starting `yearLabel`. |
-| `stops` | The six stops, in order. |
+| `stops` | The stops, in order (plus any hidden placeholders). |
 | `conclusion` | The closing panel shown with the full network: `title`, `yearLabel`, `narrative`, `thesis`, `sources` (and optional `images`). |
 | `generalSources` | Sources for the whole project that don't belong to one stop. |
 
@@ -75,7 +75,9 @@ Any text that starts with `TODO` shows up **highlighted in yellow** on the site.
 
 **Coordinates are `[longitude, latitude]`**, in that order. This is the opposite of how Google Maps shows them. West longitudes and south latitudes are negative. Example: Paris is `[2.352, 48.857]`.
 
-- **Several places in one stop.** Stop 3 (Nantes + Bordeaux), stop 5 (Paris + Versailles) and stop 6 (Madrid, Seville, Amsterdam, London, Turin) each list several `markers`. Clicking any of them opens the same panel. The map zooms to fit all of that stop's markers. To add a place, add another `{ "id", "name", "coordinates" }` entry.
+- **Several places in one stop.** A stop can list several `markers` (the hidden Paris placeholder has Paris + Versailles). Clicking any of them opens the same panel. The map zooms to fit all of that stop's markers. To add a place, add another `{ "id", "name", "coordinates" }` entry.
+- **Returning to a place.** Stop 4 goes back to Saint-Pierre. Its marker is just `{ "id": "saint-pierre" }`, the id of stop 1's marker, so both stops share one pin instead of two pins on top of each other. The pin opens whichever of its stops is next (or current); after the tour, it opens the later visit.
+- **Placeholder stops.** Add `"hidden": true` to a stop to keep it in the file without showing it (the Paris & Versailles stop is like this). Routes to or from a hidden stop wait too. Delete the line, and give the stop an `order`, to bring it back.
 - **`labelPosition`** can be `"left"`, `"right"`, `"top"`, or `"bottom"`. Use it if a place name covers something.
 - **How the camera moves.** For a new stop, the map first shows the whole route being drawn (with the ship sailing on sea routes), then flies in close on the place.
 - **`frame`** (optional) lists extra `[longitude, latitude]` points the close-up must include. Martinique's frame is two opposite corners around the whole island, so you see the island, not just the town. Without a `frame`, the close-up fits the stop's markers.
@@ -99,14 +101,14 @@ Each route is one animated line on the map.
 
 ```json
 {
-  "id": "goree-nantes",
-  "from": "goree",                  // a marker id, a stop id, or [longitude, latitude]
-  "to": "nantes",
+  "id": "nantes-goree",
+  "from": "nantes",                 // a marker id, a stop id, or [longitude, latitude]
+  "to": "goree",
   "type": "ocean",                  // "ocean" (dashed line + ship) or "land" (dotted line)
   "goods": ["What this route carried"],
-  "revealedAt": "atlantic-ports",   // the stop id where this route draws itself
+  "revealedAt": "west-africa",      // the stop id where this route draws itself
   "bend": 0.2,                      // curve: 0 = straight, negative = curve the other way
-  "via": [[-21, 28], [-12, 45]]     // optional points the line must pass through
+  "via": [[-12, 45], [-21, 28]]     // optional points the line must pass through
 }
 ```
 
@@ -122,7 +124,7 @@ Each route is one animated line on the map.
 
 A stop can end with a **scene**: clicking the stop flies in to the island and keeps going without stopping, until a full-screen picture grows out of the scene's spot on the map. The picture drifts slowly, has pulsing hotspots the viewer can click for a short note, a caption with the credit, and a "Back to the map" button (Esc also works). A "View the scene" button in the panel opens it again.
 
-The Martinique, Gorée and Bordeaux scenes are **AI-generated illustrations** made for this project (in Canva, styled after William Clark's 1823 Antigua prints). Each caption says plainly that it is a modern illustration and not a historical source. They are `assets/images/martinique-cacao-scene.jpg`, `assets/images/goree-harbour-scene.jpg` and `assets/images/bordeaux-port-scene.jpg`, and all are animated in the browser (see `animate` below). A stop with two places, like Nantes & Bordeaux, has one scene; its `coordinates` say which place the camera dives into.
+The Martinique, Gorée and Bordeaux scenes are **AI-generated illustrations** made for this project (in Canva, styled after William Clark's 1823 Antigua prints). Each caption says plainly that it is a modern illustration and not a historical source. They are `assets/images/martinique-cacao-scene.jpg`, `assets/images/goree-harbour-scene.jpg` and `assets/images/bordeaux-port-scene.jpg`, and all are animated in the browser (see `animate` below). A stop with several places has one scene; its `coordinates` say which place the camera dives into.
 
 Add a `scene` block to the stop in `data/stops.json`:
 

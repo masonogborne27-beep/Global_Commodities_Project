@@ -256,7 +256,14 @@
      ------------------------------------------------------------------------ */
 
   function prepareStops(data) {
-    const raw = asArray(data.stops);
+    // Stops with "hidden": true stay in the file as placeholders but aren't shown.
+    const all = asArray(data.stops);
+    state.hiddenRefs = new Set();
+    all.filter((s) => s && s.hidden).forEach((s) => {
+      if (s.id) state.hiddenRefs.add(String(s.id));
+      asArray(s.markers).forEach((m) => { if (m && m.id) state.hiddenRefs.add(String(m.id)); if (m && m.name) state.hiddenRefs.add(String(m.name).toLowerCase()); });
+    });
+    const raw = all.filter((s) => s && !s.hidden);
     if (!raw.length) throw new Error('data/stops.json has no "stops" list.');
 
     state.stops = raw
@@ -269,11 +276,18 @@
       if (!stop.id) stop.id = `stop-${index + 1}`;
       state.stopById.set(stop.id, stop);
 
-      let markers = asArray(stop.markers).filter((m) => m && validCoords(m.coordinates));
-      if (!markers.length && validCoords(stop.coordinates)) {
+      // A marker with the id of an earlier stop's marker reuses that same pin
+      // (a stop that returns to a place already visited).
+      const shared = [];
+      let markers = asArray(stop.markers).filter((m) => {
+        const pin = m && m.id && state.markerById.get(m.id);
+        if (pin) { shared.push(pin); return false; }
+        return m && validCoords(m.coordinates);
+      });
+      if (!markers.length && !shared.length && validCoords(stop.coordinates)) {
         markers = [{ id: stop.id, name: stop.place || stop.title, coordinates: stop.coordinates }];
       }
-      if (!markers.length) {
+      if (!markers.length && !shared.length) {
         console.warn(`stops.json: stop "${stop.id}" has no valid coordinates, so it has no marker.`);
       }
       stop.markers = markers.map((m, j) => {
@@ -286,7 +300,8 @@
           coordinates: c,
           id: m.id || `${stop.id}-${j + 1}`,
           name: m.name || stop.place || stop.title || '',
-          stop
+          stop,
+          stops: [stop]
         };
       });
       // Extra points to include when zooming in close (see "frame" in the README).
@@ -305,7 +320,21 @@
         state.markers.push(m);
         if (!state.markerById.has(m.id)) state.markerById.set(m.id, m);
       });
+      shared.forEach((pin) => { pin.stops.push(stop); stop.markers.push(pin); });
     });
+  }
+
+  // The stop a pin stands for right now. A pin shared by several stops points to
+  // the next stop if it's one of them, then the current one, then the latest
+  // one already visited, else the first.
+  function markerStop(m) {
+    const list = m.stops || [m.stop];
+    if (list.length === 1) return list[0];
+    const next = state.started && !state.finished ? state.reached + 1 : -1;
+    return list.find((s) => s.index === next) ||
+      list.find((s) => s.index === state.current) ||
+      list.filter((s) => s.index <= state.reached).pop() ||
+      list[0];
   }
 
   // A route end can be a marker id, a marker name, a stop id,
@@ -341,6 +370,10 @@
 
     list.forEach((r, i) => {
       const label = r.id ? `"${r.id}"` : `#${i + 1}`;
+      // Routes to or from a hidden placeholder stop wait until it is shown again.
+      const hidden = (ref) => typeof ref === 'string' &&
+        (state.hiddenRefs.has(ref.trim()) || state.hiddenRefs.has(ref.trim().toLowerCase()));
+      if (hidden(r.from) || hidden(r.to) || state.hiddenRefs.has(String(r.revealedAt))) return;
       const from = resolvePoint(r.from);
       const to = resolvePoint(r.to);
       if (!from || !to) {
@@ -571,16 +604,14 @@
      ------------------------------------------------------------------------ */
 
   function buildMarkers() {
-    state.stops.forEach((stop) => {
-      stop.markers.forEach((m) => {
-        const pos = ['left', 'right', 'top', 'bottom'].includes(m.labelPosition) ? m.labelPosition : 'right';
-        m.el = el('button', { type: 'button', class: `marker label-${pos}` },
-          el('span', { class: 'marker-dot', 'aria-hidden': 'true' }),
-          el('span', { class: 'marker-label', 'aria-hidden': 'true' }, m.name)
-        );
-        m.el.addEventListener('click', () => onMarker(stop.index));
-        els.markers.append(m.el);
-      });
+    state.markers.forEach((m) => {
+      const pos = ['left', 'right', 'top', 'bottom'].includes(m.labelPosition) ? m.labelPosition : 'right';
+      m.el = el('button', { type: 'button', class: `marker label-${pos}` },
+        el('span', { class: 'marker-dot', 'aria-hidden': 'true' }),
+        el('span', { class: 'marker-label', 'aria-hidden': 'true' }, m.name)
+      );
+      m.el.addEventListener('click', () => onMarker(markerStop(m).index));
+      els.markers.append(m.el);
     });
   }
 
@@ -588,7 +619,8 @@
     const n = state.stops.length;
     const next = state.started && !state.finished ? state.reached + 1 : -1;
     state.markers.forEach((m) => {
-      const i = m.stop.index;
+      const stop = markerStop(m);
+      const i = stop.index;
       const visited = i <= state.reached;
       const isNext = i === next;
       const locked = !visited && !isNext;
@@ -603,7 +635,7 @@
       if (current) b.setAttribute('aria-current', 'step');
       else b.removeAttribute('aria-current');
 
-      const title = m.stop.title && !isTodo(m.stop.title) ? `: ${m.stop.title}` : '';
+      const title = stop.title && !isTodo(stop.title) ? `: ${stop.title}` : '';
       const status = isNext ? ' (next stop)' : visited ? ' (visited)' : ' (not reached yet)';
       b.setAttribute('aria-label', `Stop ${i + 1} of ${n}, ${m.name}${title}${status}`);
     });
@@ -653,7 +685,7 @@
     const rank = (m) => (m.el.classList.contains('is-current') ? 0 : m.el.classList.contains('is-next') ? 1 : 2);
     const shown = state.markers
       .filter((m) => m.el && Number.isFinite(m.x) && !m.el.classList.contains('is-locked'))
-      .sort((a, b) => rank(a) - rank(b) || a.stop.index - b.stop.index);
+      .sort((a, b) => rank(a) - rank(b) || markerStop(a).index - markerStop(b).index);
     // Pins count as taken space too, so a name never hides under another pin.
     const pin = 12;
     const placed = shown.map((m) => [m.x - pin, m.y - pin, m.x + pin, m.y + pin, m]);
