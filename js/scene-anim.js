@@ -28,7 +28,7 @@
 
   const MAX_SWAY = 6;
   const MAX_SHIMMER = 3;
-  const MAX_PARTS = 20; // moving body parts; fewer on graphics cards with little room
+  const MAX_PARTS = 24; // moving body parts; fewer on graphics cards with little room
 
   const VERT = `
     attribute vec2 pos;

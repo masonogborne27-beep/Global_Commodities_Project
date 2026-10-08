@@ -122,7 +122,7 @@ Each route is one animated line on the map.
 
 A stop can end with a **scene**: clicking the stop flies in to the island and keeps going without stopping, until a full-screen picture grows out of the scene's spot on the map. The picture drifts slowly, has pulsing hotspots the viewer can click for a short note, a caption with the credit, and a "Back to the map" button (Esc also works). A "View the scene" button in the panel opens it again.
 
-The Martinique and Gorée scenes are **AI-generated illustrations** made for this project (in Canva, styled after William Clark's 1823 Antigua prints). Each caption says plainly that it is a modern illustration and not a historical source. They are `assets/images/martinique-cacao-scene.jpg` and `assets/images/goree-harbour-scene.jpg`, and both are animated in the browser (see `animate` below).
+The Martinique, Gorée and Bordeaux scenes are **AI-generated illustrations** made for this project (in Canva, styled after William Clark's 1823 Antigua prints). Each caption says plainly that it is a modern illustration and not a historical source. They are `assets/images/martinique-cacao-scene.jpg`, `assets/images/goree-harbour-scene.jpg` and `assets/images/bordeaux-port-scene.jpg`, and all are animated in the browser (see `animate` below). A stop with two places, like Nantes & Bordeaux, has one scene; its `coordinates` say which place the camera dives into.
 
 Add a `scene` block to the stop in `data/stops.json`:
 
@@ -163,7 +163,7 @@ Add a `scene` block to the stop in `data/stops.json`:
     - `turn`: how far it turns, in degrees (positive is clockwise). Optional `slide: [across, down]` moves it instead of turning it.
     - A part can also have its own `style`, `speed` and `phase`.
 
-    Styles: `"chop"` (slow lift, quick strike), `"work"` (a steady reach and return) and `"sway"` (an easy to-and-fro, for standing or breathing). Keep the moves small: a part never moves more than about a third of its `width` (bigger values are scaled down so the picture doesn't smear), so to move a piece further, make its `width` bigger. Up to 20 parts in all.
+    Styles: `"chop"` (slow lift, quick strike), `"work"` (a steady reach and return) and `"sway"` (an easy to-and-fro, for standing or breathing). Keep the moves small: a part never moves more than about a third of its `width` (bigger values are scaled down so the picture doesn't smear), so to move a piece further, make its `width` bigger. Up to 24 parts in all.
 
   Nothing moves when the viewer's device is set to reduce motion, or while the placeholder picture is showing.
 - **`pan`** (optional) is the slow drift: it moves from the point `from` to the point `to`, zooming from `zoomFrom` to `zoomTo`, over `seconds`, then back. Points are fractions of the picture, `[across, down]`, so `[0, 0]` is the top-left corner and `[1, 1]` the bottom-right. Leave `pan` out for a still picture with a gentle breathe. Keep `zoomFrom` a little above 1 (e.g. `1.08`): as the cloud clears after the dive, the picture zooms in from filling the screen to that size, so the zoom carries on into the scene.

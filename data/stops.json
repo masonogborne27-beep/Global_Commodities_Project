@@ -241,6 +241,78 @@
         { "id": "nantes", "name": "Nantes", "coordinates": [-1.554, 47.218], "labelPosition": "left" },
         { "id": "bordeaux", "name": "Bordeaux", "coordinates": [-0.579, 44.838], "labelPosition": "right" }
       ],
+      "scene": {
+        "image": "assets/images/bordeaux-port-scene.jpg",
+        "coordinates": [-0.571, 44.841],
+        "alt": "Painted illustration of the port of Bordeaux on the river Garonne: porters carry heavy sacks of cacao down a gangplank from a moored ship, a crate swings from a rope hoist while a man hauls on the line, and a dock worker rolls a barrel across the cobbled quay past stacked barrels and crates. In the centre a merchant in a powdered wig and embroidered coat examines cacao beans from an open sack while a clerk writes in a ledger on a barrel head; a market woman holds a basket, and a horse-drawn cart loaded with barrels waits beside a rider. Behind, three-masted merchant ships flying white fleur-de-lis flags lie in the river below the long pale stone facades of the Place Royale.",
+        "title": "Unloading colonial cargo at Bordeaux",
+        "year": "c. 1760",
+        "note": "AI illustration made for this project, not a historical source",
+        "caption": "TODO: one or two sentences about what this picture shows (and that it is a modern reconstruction)",
+        "credit": "AI-generated illustration (Canva), styled after William Clark, Ten Views in the Island of Antigua (1823)",
+        "license": "Made for this project",
+        "sourceUrl": "",
+        "animate": {
+          "sway": [
+            { "box": [0.08, 0.15, 0.14, 0.31], "amount": 2.0 },
+            { "box": [0.23, 0.04, 0.27, 0.12], "amount": 1.5 },
+            { "box": [0.38, 0.2, 0.41, 0.25], "amount": 1.5 }
+          ],
+          "sky": [0.12, 0.0, 0.82, 0.2],
+          "shimmer": [[0.33, 0.45, 0.58, 0.5]],
+          "birds": { "count": 4, "band": [0.15, 0.02, 0.85, 0.2] },
+          "motes": { "box": [0.0, 0.5, 0.7, 0.98], "count": 16 },
+          "figures": [
+            { "name": "Porters carrying sacks of cacao down the gangplank", "style": "sway", "speed": 0.9, "parts": [
+              {"path": [[0.09, 0.44], [0.085, 0.6]], "joint": [0.08, 0.68], "width": 0.06, "turn": 1, "slide": [0, 0.004]},
+              {"path": [[0.15, 0.5], [0.13, 0.64]], "joint": [0.122, 0.69], "width": 0.06, "turn": 1, "slide": [0, 0.004], "phase": 0.35},
+              {"path": [[0.22, 0.565], [0.205, 0.7]], "joint": [0.2, 0.76], "width": 0.06, "turn": 1, "slide": [0, 0.004], "phase": 0.7}
+            ] },
+            { "name": "Porter unloading the lighter", "style": "work", "speed": 0.3, "phase": 0.2, "rests": true, "parts": [
+              {"path": [[0.264, 0.62], [0.245, 0.68]], "joint": [0.235, 0.73], "width": 0.045, "turn": 4}
+            ] },
+            { "name": "Dock worker rolling a barrel", "style": "work", "speed": 0.35, "rests": true, "parts": [
+              {"path": [[0.399, 0.665], [0.371, 0.726], [0.42, 0.79]], "joint": [0.34, 0.77], "width": 0.045, "turn": 3},
+              {"path": [[0.39, 0.865], [0.465, 0.865]], "joint": [0.427, 0.865], "width": 0.06, "turn": 0, "slide": [0.004, 0]}
+            ] },
+            { "name": "Man hauling the hoist rope", "style": "chop", "speed": 0.3, "rests": true, "parts": [
+              {"path": [[0.53, 0.565], [0.5, 0.51]], "joint": [0.53, 0.565], "width": 0.035, "turn": -5},
+              {"path": [[0.538, 0.53], [0.53, 0.7]], "joint": [0.526, 0.77], "width": 0.05, "turn": 1.5}
+            ] },
+            { "name": "Crate swinging on the hoist", "style": "sway", "speed": 0.25, "parts": [
+              {"path": [[0.308, 0.32], [0.308, 0.49]], "joint": [0.31, 0.0], "width": 0.06, "turn": 1.2}
+            ] },
+            { "name": "Boatman with the crates", "style": "sway", "speed": 0.3, "phase": 0.6, "parts": [
+              {"path": [[0.435, 0.6], [0.435, 0.65]], "joint": [0.435, 0.67], "width": 0.035, "turn": 2}
+            ] },
+            { "name": "Merchant examining the cacao beans", "style": "sway", "speed": 0.35, "rests": true, "parts": [
+              {"path": [[0.603, 0.55], [0.603, 0.59]], "joint": [0.603, 0.61], "width": 0.04, "turn": 2},
+              {"path": [[0.57, 0.69], [0.552, 0.726]], "joint": [0.57, 0.69], "width": 0.032, "turn": 6, "phase": 0.4}
+            ] },
+            { "name": "Clerk writing in the ledger", "style": "sway", "speed": 1.4, "phase": 0.2, "rests": true, "parts": [
+              {"path": [[0.679, 0.742], [0.66, 0.778]], "joint": [0.679, 0.742], "width": 0.03, "turn": 4},
+              {"path": [[0.687, 0.6], [0.687, 0.63]], "joint": [0.69, 0.65], "width": 0.04, "turn": 2, "style": "work", "speed": 0.25}
+            ] },
+            { "name": "Market woman with her basket", "style": "sway", "speed": 0.3, "phase": 0.5, "parts": [
+              {"path": [[0.826, 0.64], [0.83, 0.86]], "joint": [0.83, 0.95], "width": 0.06, "turn": 1.2},
+              {"path": [[0.775, 0.79], [0.78, 0.85]], "joint": [0.785, 0.775], "width": 0.04, "turn": 4}
+            ] },
+            { "name": "Worker by the cart", "style": "sway", "speed": 0.25, "phase": 0.7, "parts": [
+              {"path": [[0.72, 0.535], [0.72, 0.64]], "joint": [0.72, 0.68], "width": 0.04, "turn": 1.5}
+            ] },
+            { "name": "Horse and rider", "style": "work", "speed": 0.14, "rests": true, "parts": [
+              {"path": [[0.95, 0.545], [0.945, 0.6]], "joint": [0.915, 0.57], "width": 0.04, "turn": 4},
+              {"path": [[0.918, 0.47], [0.915, 0.53]], "joint": [0.912, 0.56], "width": 0.04, "turn": 0.8, "style": "sway", "speed": 0.1}
+            ] },
+            { "name": "Ships moored in the river", "style": "sway", "speed": 0.12, "parts": [
+              {"path": [[0.225, 0.12], [0.225, 0.47]], "joint": [0.225, 0.5], "width": 0.08, "turn": 0.5},
+              {"path": [[0.395, 0.22], [0.395, 0.46]], "joint": [0.395, 0.48], "width": 0.06, "turn": 0.5, "phase": 0.5}
+            ] }
+          ]
+        },
+        "pan": { "from": [0.36, 0.55], "to": [0.64, 0.5], "zoomFrom": 1.08, "zoomTo": 1.14, "seconds": 45 },
+        "hotspots": []
+      },
       "narrative": [
         "TODO: narrative paragraph 1 about Nantes and Bordeaux",
         "TODO: narrative paragraph 2 about ___"
