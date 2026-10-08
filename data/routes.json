@@ -1,94 +1,39 @@
 {
   "routes": [
     {
-      "id": "martinique-goree",
-      "from": "saint-pierre",
+      "id": "nantes-goree",
+      "from": "nantes",
       "to": "goree",
       "type": "ocean",
       "goods": ["TODO: goods carried"],
       "revealedAt": "west-africa",
-      "via": [[-48, 17.2], [-30, 16.6], [-19.5, 14.9], [-17.8, 14.52]]
+      "via": [[-5, 47.3], [-12, 45], [-21, 28]]
     },
     {
-      "id": "goree-nantes",
+      "id": "goree-martinique",
       "from": "goree",
-      "to": "nantes",
+      "to": "saint-pierre",
       "type": "ocean",
       "goods": ["TODO: goods carried"],
-      "revealedAt": "atlantic-ports",
-      "via": [[-21, 28], [-12, 45], [-5, 47.3]]
+      "revealedAt": "martinique-labor",
+      "via": [[-17.8, 14.52], [-19.5, 14.9], [-30, 16.6], [-48, 17.2]]
     },
     {
-      "id": "goree-bordeaux",
-      "from": "goree",
+      "id": "martinique-bordeaux",
+      "from": "saint-pierre",
       "to": "bordeaux",
       "type": "ocean",
       "goods": ["TODO: goods carried"],
-      "revealedAt": "atlantic-ports",
-      "via": [[-19, 28], [-11, 43.5], [-2.5, 45.5]]
+      "revealedAt": "bordeaux",
+      "via": [[-52, 22], [-34, 35], [-14, 44.6], [-2.5, 45.5]]
     },
     {
-      "id": "bordeaux-bayonne",
+      "id": "bordeaux-paris",
       "from": "bordeaux",
-      "to": "bayonne",
-      "type": "land",
-      "goods": ["TODO: goods carried"],
-      "revealedAt": "bayonne",
-      "bend": 0.15
-    },
-    {
-      "id": "bayonne-paris",
-      "from": "bayonne",
       "to": "paris",
       "type": "land",
       "goods": ["TODO: goods carried"],
-      "revealedAt": "paris",
-      "bend": 0.15
-    },
-    {
-      "id": "paris-madrid",
-      "from": "paris",
-      "to": "madrid",
-      "type": "land",
-      "goods": ["TODO: goods carried"],
-      "revealedAt": "europe",
-      "bend": 0.15
-    },
-    {
-      "id": "madrid-seville",
-      "from": "madrid",
-      "to": "seville",
-      "type": "land",
-      "goods": ["TODO: goods carried"],
-      "revealedAt": "europe",
-      "bend": 0.15
-    },
-    {
-      "id": "paris-amsterdam",
-      "from": "paris",
-      "to": "amsterdam",
-      "type": "land",
-      "goods": ["TODO: goods carried"],
-      "revealedAt": "europe",
-      "bend": 0.15
-    },
-    {
-      "id": "paris-london",
-      "from": "paris",
-      "to": "london",
-      "type": "land",
-      "goods": ["TODO: goods carried"],
-      "revealedAt": "europe",
-      "bend": -0.15
-    },
-    {
-      "id": "paris-turin",
-      "from": "paris",
-      "to": "turin",
-      "type": "land",
-      "goods": ["TODO: goods carried"],
-      "revealedAt": "europe",
-      "bend": 0.15
+      "revealedAt": "paris"
     }
   ]
 }

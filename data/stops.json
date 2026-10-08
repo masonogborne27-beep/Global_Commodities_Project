@@ -12,7 +12,7 @@
     {
       "id": "martinique",
       "order": 1,
-      "title": "TODO: title for the Martinique stop",
+      "title": "TODO: title for the Saint-Pierre introduction",
       "place": "Saint-Pierre, Martinique",
       "dateRange": "TODO: date range",
       "yearLabel": "c. TODO",
@@ -91,7 +91,7 @@
         "hotspots": []
       },
       "narrative": [
-        "TODO: narrative paragraph 1 about French cacao plantations in Martinique",
+        "TODO: narrative paragraph 1 introducing Saint-Pierre, Martinique, and French cacao",
         "TODO: narrative paragraph 2 about ___",
         "TODO: narrative paragraph 3 (optional) about ___"
       ],
@@ -122,17 +122,60 @@
     },
 
     {
-      "id": "west-africa",
+      "id": "nantes",
       "order": 2,
+      "title": "TODO: title for the Nantes stop",
+      "place": "Nantes, France",
+      "dateRange": "TODO: date range",
+      "yearLabel": "c. TODO",
+      "coordinates": [-1.554, 47.218],
+      "zoom": 800,
+      "frame": [[-2.45, 46.95], [-1.2, 47.45]],
+      "markers": [
+        { "id": "nantes", "name": "Nantes", "coordinates": [-1.554, 47.218], "labelPosition": "left" }
+      ],
+      "narrative": [
+        "TODO: narrative paragraph 1 about the French slave-trading voyages that departed from Nantes",
+        "TODO: narrative paragraph 2 about ___"
+      ],
+      "images": [
+        {
+          "src": "assets/images/placeholder-landscape.svg",
+          "alt": "TODO: describe what the image shows for screen-reader users",
+          "caption": "TODO: caption",
+          "credit": "TODO: artist / collection / source",
+          "license": "TODO: e.g. Public domain"
+        },
+        {
+          "src": "assets/images/placeholder-landscape.svg",
+          "alt": "TODO: describe what the image shows for screen-reader users",
+          "caption": "TODO: caption",
+          "credit": "TODO: artist / collection / source",
+          "license": "TODO: e.g. Public domain"
+        }
+      ],
+      "traded": {
+        "goodsOut": ["TODO: ___"],
+        "goodsIn": ["TODO: ___"]
+      },
+      "globalization": "TODO: connection to globalization for Nantes",
+      "sources": [
+        { "citation": "TODO: full citation", "url": "" }
+      ]
+    },
+
+    {
+      "id": "west-africa",
+      "order": 3,
       "title": "TODO: title for the West Africa stop",
-      "place": "Gorée / Senegal coast",
+      "place": "West Africa",
       "dateRange": "TODO: date range",
       "yearLabel": "c. TODO",
       "coordinates": [-17.398, 14.667],
       "zoom": 800,
       "frame": [[-17.95, 14.45], [-17.0, 14.95]],
       "markers": [
-        { "id": "goree", "name": "Gorée", "coordinates": [-17.398, 14.667], "labelPosition": "left" }
+        { "id": "goree", "name": "West Africa", "coordinates": [-17.398, 14.667], "labelPosition": "left" }
       ],
       "scene": {
         "image": "assets/images/goree-harbour-scene.jpg",
@@ -228,17 +271,59 @@
     },
 
     {
-      "id": "atlantic-ports",
-      "order": 3,
-      "title": "TODO: title for the French Atlantic ports stop",
-      "place": "Nantes and Bordeaux, France",
+      "id": "martinique-labor",
+      "order": 4,
+      "title": "TODO: title for the return to Saint-Pierre (enslaved labor and cacao production)",
+      "place": "Saint-Pierre, Martinique",
       "dateRange": "TODO: date range",
       "yearLabel": "c. TODO",
-      "coordinates": [-1.1, 46.0],
-      "zoom": 150,
-      "frame": [[-2.9, 44.4], [0.0, 47.7]],
+      "coordinates": [-61.176, 14.743],
+      "zoom": 600,
+      "frame": [[-61.3, 14.35], [-60.75, 14.95]],
       "markers": [
-        { "id": "nantes", "name": "Nantes", "coordinates": [-1.554, 47.218], "labelPosition": "left" },
+        { "id": "saint-pierre", "name": "Saint-Pierre", "coordinates": [-61.176, 14.743], "labelPosition": "right" }
+      ],
+      "narrative": [
+        "TODO: narrative paragraph 1 about enslaved labor on Martinique's cacao plantations",
+        "TODO: narrative paragraph 2 about how cacao was grown, harvested and prepared for shipping"
+      ],
+      "images": [
+        {
+          "src": "assets/images/placeholder-landscape.svg",
+          "alt": "TODO: describe what the image shows for screen-reader users",
+          "caption": "TODO: caption",
+          "credit": "TODO: artist / collection / source",
+          "license": "TODO: e.g. Public domain"
+        },
+        {
+          "src": "assets/images/placeholder-portrait.svg",
+          "alt": "TODO: describe what the image shows for screen-reader users",
+          "caption": "TODO: caption",
+          "credit": "TODO: artist / collection / source",
+          "license": "TODO: e.g. Public domain"
+        }
+      ],
+      "traded": {
+        "goodsOut": ["TODO: good leaving Martinique"],
+        "goodsIn": ["TODO: good arriving in Martinique"]
+      },
+      "globalization": "TODO: connection to globalization for enslaved labor and cacao production",
+      "sources": [
+        { "citation": "TODO: full citation (author, title, publisher, year)", "url": "" }
+      ]
+    },
+
+    {
+      "id": "bordeaux",
+      "order": 5,
+      "title": "TODO: title for the Bordeaux stop",
+      "place": "Bordeaux, France",
+      "dateRange": "TODO: date range",
+      "yearLabel": "c. TODO",
+      "coordinates": [-0.579, 44.838],
+      "zoom": 800,
+      "frame": [[-1.2, 44.55], [-0.15, 45.1]],
+      "markers": [
         { "id": "bordeaux", "name": "Bordeaux", "coordinates": [-0.579, 44.838], "labelPosition": "right" }
       ],
       "scene": {
@@ -314,7 +399,7 @@
         "hotspots": []
       },
       "narrative": [
-        "TODO: narrative paragraph 1 about Nantes and Bordeaux",
+        "TODO: narrative paragraph 1 about Martinique's cacao arriving in Bordeaux",
         "TODO: narrative paragraph 2 about ___"
       ],
       "images": [
@@ -337,43 +422,7 @@
         "goodsOut": ["TODO: ___"],
         "goodsIn": ["TODO: ___"]
       },
-      "globalization": "TODO: connection to globalization for the Atlantic ports",
-      "sources": [
-        { "citation": "TODO: full citation", "url": "" }
-      ]
-    },
-
-    {
-      "id": "bayonne",
-      "order": 4,
-      "title": "TODO: title for the Bayonne stop",
-      "place": "Bayonne, France",
-      "dateRange": "TODO: date range",
-      "yearLabel": "c. TODO",
-      "coordinates": [-1.475, 43.493],
-      "zoom": 800,
-      "frame": [[-2.3, 42.95], [-0.65, 43.95]],
-      "markers": [
-        { "id": "bayonne", "name": "Bayonne", "coordinates": [-1.475, 43.493], "labelPosition": "left" }
-      ],
-      "narrative": [
-        "TODO: narrative paragraph 1 about Bayonne",
-        "TODO: narrative paragraph 2 about ___"
-      ],
-      "images": [
-        {
-          "src": "assets/images/placeholder-portrait.svg",
-          "alt": "TODO: describe what the image shows for screen-reader users",
-          "caption": "TODO: caption",
-          "credit": "TODO: artist / collection / source",
-          "license": "TODO: e.g. Public domain"
-        }
-      ],
-      "traded": {
-        "goodsOut": ["TODO: ___"],
-        "goodsIn": ["TODO: ___"]
-      },
-      "globalization": "TODO: connection to globalization for Bayonne",
+      "globalization": "TODO: connection to globalization for Bordeaux",
       "sources": [
         { "citation": "TODO: full citation", "url": "" }
       ]
@@ -381,7 +430,8 @@
 
     {
       "id": "paris",
-      "order": 5,
+      "hidden": true,
+      "order": 6,
       "title": "TODO: title for the Paris / Versailles stop",
       "place": "Paris and Versailles, France",
       "dateRange": "TODO: date range",
@@ -418,60 +468,6 @@
         "goodsIn": ["TODO: ___"]
       },
       "globalization": "TODO: connection to globalization for Paris / Versailles",
-      "sources": [
-        { "citation": "TODO: full citation", "url": "" }
-      ]
-    },
-
-    {
-      "id": "europe",
-      "order": 6,
-      "title": "TODO: title for the stop about chocolate spreading across Europe",
-      "place": "Madrid & Seville, Amsterdam, London, Turin",
-      "dateRange": "TODO: date range",
-      "yearLabel": "c. TODO",
-      "coordinates": [0.5, 46.0],
-      "zoom": 14,
-      "markers": [
-        { "id": "madrid", "name": "Madrid", "coordinates": [-3.704, 40.417], "labelPosition": "right" },
-        { "id": "seville", "name": "Seville", "coordinates": [-5.984, 37.389], "labelPosition": "left" },
-        { "id": "amsterdam", "name": "Amsterdam", "coordinates": [4.895, 52.370], "labelPosition": "right" },
-        { "id": "london", "name": "London", "coordinates": [-0.128, 51.507], "labelPosition": "left" },
-        { "id": "turin", "name": "Turin", "coordinates": [7.687, 45.070], "labelPosition": "right" }
-      ],
-      "narrative": [
-        "TODO: narrative paragraph 1 about Madrid and Seville",
-        "TODO: narrative paragraph 2 about Amsterdam and London",
-        "TODO: narrative paragraph 3 about Turin"
-      ],
-      "images": [
-        {
-          "src": "assets/images/placeholder-landscape.svg",
-          "alt": "TODO: describe what the image shows for screen-reader users",
-          "caption": "TODO: caption",
-          "credit": "TODO: artist / collection / source",
-          "license": "TODO: e.g. Public domain"
-        },
-        {
-          "src": "assets/images/placeholder-portrait.svg",
-          "alt": "TODO: describe what the image shows for screen-reader users",
-          "caption": "TODO: caption",
-          "credit": "TODO: artist / collection / source",
-          "license": "TODO: e.g. Public domain"
-        },
-        {
-          "src": "assets/images/placeholder-landscape.svg",
-          "alt": "TODO: describe what the image shows for screen-reader users",
-          "caption": "TODO: caption",
-          "credit": "TODO: artist / collection / source",
-          "license": "TODO: e.g. Public domain"
-        }
-      ],
-      "traded": {
-        "goodsOut": ["TODO: ___"],
-        "goodsIn": ["TODO: ___"]
-      },
-      "globalization": "TODO: connection to globalization for the spread of chocolate across Europe",
       "sources": [
         { "citation": "TODO: full citation", "url": "" }
       ]
