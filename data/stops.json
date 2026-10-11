@@ -134,6 +134,82 @@
       "markers": [
         { "id": "nantes", "name": "Nantes", "coordinates": [-1.554, 47.218], "labelPosition": "left" }
       ],
+      "scene": {
+        "image": "assets/images/nantes-quay-scene.jpg",
+        "coordinates": [-1.565, 47.211],
+        "alt": "Painted illustration of the Quai de la Fosse in Nantes on the river Loire: a three-masted French ship lies at the quay with sailors in its rigging while a wooden crane swings a net of cargo aboard. On the cobbled quay, workers carry rolls of brightly printed cotton cloth, roll barrels, carry a small chest and handle coiled rope, and a cooper hammers a hoop onto a cask. In the centre a shipowner in a powdered wig and the ship's captain in a blue coat and tricorne talk while a clerk notes the cargo in a ledger. Along the left stand the tall pale stone houses of the shipowners, with a horse and cart before them, and small boats cross the river toward the far bank.",
+        "title": "Fitting out a ship on the Quai de la Fosse, Nantes",
+        "year": "c. 1760",
+        "note": "AI illustration made for this project, not a historical source",
+        "caption": "TODO: one or two sentences about what this picture shows (and that it is a modern reconstruction)",
+        "credit": "AI-generated illustration (Canva), styled after William Clark, Ten Views in the Island of Antigua (1823)",
+        "license": "Made for this project",
+        "sourceUrl": "",
+        "animate": {
+          "sway": [
+            { "box": [0.53, 0.18, 0.72, 0.32], "amount": 0.5 },
+            { "box": [0.95, 0.45, 1.0, 0.56], "amount": 0.8 }
+          ],
+          "sky": [0.25, 0.0, 1.0, 0.35],
+          "shimmer": [[0.74, 0.57, 0.98, 0.64]],
+          "birds": { "count": 3, "band": [0.15, 0.02, 0.45, 0.25] },
+          "motes": { "box": [0.0, 0.55, 0.75, 0.98], "count": 16 },
+          "figures": [
+            { "name": "Men carrying a roll of printed cotton", "style": "sway", "speed": 0.6, "parts": [
+              {"path": [[0.069, 0.66], [0.07, 0.9]], "joint": [0.07, 0.95], "width": 0.055, "turn": 1},
+              {"path": [[0.149, 0.66], [0.15, 0.88]], "joint": [0.15, 0.95], "width": 0.05, "turn": 1, "phase": 0.5}
+            ] },
+            { "name": "Workers rolling a barrel", "style": "work", "speed": 0.35, "rests": true, "parts": [
+              {"path": [[0.298, 0.62], [0.3, 0.7]], "joint": [0.31, 0.78], "width": 0.045, "turn": -3},
+              {"path": [[0.33, 0.62], [0.335, 0.7]], "joint": [0.34, 0.78], "width": 0.04, "turn": 2.5, "phase": 0.5},
+              {"path": [[0.28, 0.75], [0.32, 0.75]], "joint": [0.3, 0.75], "width": 0.05, "turn": 0, "slide": [0.003, 0]}
+            ] },
+            { "name": "Sailors walking along the quay", "style": "sway", "speed": 0.8, "parts": [
+              {"path": [[0.242, 0.61], [0.242, 0.7]], "joint": [0.242, 0.73], "width": 0.03, "turn": 1.5},
+              {"path": [[0.19, 0.585], [0.19, 0.65]], "joint": [0.19, 0.68], "width": 0.03, "turn": 1.5, "phase": 0.3},
+              {"path": [[0.375, 0.614], [0.375, 0.7]], "joint": [0.375, 0.74], "width": 0.03, "turn": 1.5, "phase": 0.6}
+            ] },
+            { "name": "Clerk noting the cargo", "style": "sway", "speed": 1.4, "rests": true, "parts": [
+              {"path": [[0.452, 0.715], [0.462, 0.735]], "joint": [0.45, 0.71], "width": 0.025, "turn": 4},
+              {"path": [[0.44, 0.655], [0.44, 0.68]], "joint": [0.44, 0.7], "width": 0.035, "turn": 2, "style": "work", "speed": 0.25}
+            ] },
+            { "name": "Shipowner pointing", "style": "sway", "speed": 0.35, "rests": true, "parts": [
+              {"path": [[0.5, 0.69], [0.475, 0.685]], "joint": [0.5, 0.69], "width": 0.03, "turn": 5},
+              {"path": [[0.514, 0.65], [0.514, 0.68]], "joint": [0.514, 0.7], "width": 0.035, "turn": 2, "phase": 0.3}
+            ] },
+            { "name": "Captain pointing at the ship", "style": "sway", "speed": 0.3, "phase": 0.4, "rests": true, "parts": [
+              {"path": [[0.551, 0.655], [0.551, 0.685]], "joint": [0.551, 0.705], "width": 0.035, "turn": -2},
+              {"path": [[0.565, 0.67], [0.585, 0.635]], "joint": [0.565, 0.672], "width": 0.028, "turn": -5}
+            ] },
+            { "name": "Sailor carrying a chest", "style": "sway", "speed": 0.4, "phase": 0.2, "parts": [
+              {"path": [[0.621, 0.64], [0.618, 0.8]], "joint": [0.618, 0.88], "width": 0.05, "turn": 1.2}
+            ] },
+            { "name": "Sailors hauling the rope", "style": "work", "speed": 0.3, "rests": true, "parts": [
+              {"path": [[0.671, 0.7], [0.68, 0.8]], "joint": [0.675, 0.87], "width": 0.045, "turn": -3},
+              {"path": [[0.703, 0.675], [0.705, 0.75]], "joint": [0.705, 0.85], "width": 0.04, "turn": 2, "phase": 0.5}
+            ] },
+            { "name": "Cooper hammering a hoop", "style": "chop", "speed": 0.8, "rests": true, "parts": [
+              {"path": [[0.795, 0.765], [0.775, 0.79]], "joint": [0.797, 0.765], "width": 0.03, "turn": -8},
+              {"path": [[0.805, 0.72], [0.805, 0.745]], "joint": [0.81, 0.77], "width": 0.035, "turn": 2}
+            ] },
+            { "name": "Cargo swinging on the crane", "style": "sway", "speed": 0.25, "parts": [
+              {"path": [[0.735, 0.36], [0.735, 0.44]], "joint": [0.74, 0.12], "width": 0.05, "turn": 1}
+            ] },
+            { "name": "Ship at the quay", "style": "sway", "speed": 0.12, "parts": [
+              {"path": [[0.6, 0.1], [0.6, 0.6]], "joint": [0.6, 0.64], "width": 0.14, "turn": 0.4}
+            ] },
+            { "name": "Boats on the Loire", "style": "sway", "speed": 0.35, "parts": [
+              {"path": [[0.77, 0.66], [0.84, 0.665]], "joint": [0.8, 0.67], "width": 0.03, "turn": 0.8, "slide": [0, 0.002]},
+              {"path": [[0.74, 0.715], [0.78, 0.72]], "joint": [0.76, 0.72], "width": 0.025, "turn": 0.7, "slide": [0, 0.002], "phase": 0.4}
+            ] },
+            { "name": "Horse at the cart", "style": "work", "speed": 0.14, "rests": true, "parts": [
+              {"path": [[0.155, 0.565], [0.158, 0.61]], "joint": [0.135, 0.6], "width": 0.035, "turn": 4}
+            ] }
+          ]
+        },
+        "pan": { "from": [0.36, 0.55], "to": [0.64, 0.5], "zoomFrom": 1.08, "zoomTo": 1.14, "seconds": 45 },
+        "hotspots": []
+      },
       "narrative": [
         "TODO: narrative paragraph 1 about the French slave-trading voyages that departed from Nantes",
         "TODO: narrative paragraph 2 about ___"
