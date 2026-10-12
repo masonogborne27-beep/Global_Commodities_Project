@@ -4,7 +4,7 @@ An animated world map that follows cacao and chocolate through the French empire
 
 > How did early modern empires help create and shape a globalized economy?
 
-Our case study is French cacao production in Martinique. The viewer follows six stops in order: Saint-Pierre, Martinique (introduction) → Nantes, where French slave-trading voyages departed → West Africa (Gorée) → back to Saint-Pierre for enslaved labor and cacao production → Bordeaux, where Martinique's cacao arrived in France → Versailles, where it was drunk at court. At the end, the map zooms out to show the whole trade network. A Paris stop is kept in the file as a hidden placeholder.
+Our case study is French cacao production in Martinique. The viewer follows seven stops in order: Saint-Pierre, Martinique (introduction) → Nantes, where French slave-trading voyages departed → West Africa (Gorée) → back to Saint-Pierre for enslaved labor and cacao production → Bordeaux, where Martinique's cacao arrived in France → Versailles, where it was drunk at court → Paris. At the end, the map zooms out to show the whole trade network.
 
 It is a plain HTML/CSS/JavaScript site with no build step, so it runs on GitHub Pages as-is.
 
@@ -77,7 +77,7 @@ Any text that starts with `TODO` shows up **highlighted in yellow** on the site.
 
 - **Several places in one stop.** A stop can list several `markers` (for example, a city and a nearby town). Clicking any of them opens the same panel. The map zooms to fit all of that stop's markers. To add a place, add another `{ "id", "name", "coordinates" }` entry.
 - **Returning to a place.** Stop 4 goes back to Saint-Pierre. Its marker is just `{ "id": "saint-pierre" }`, the id of stop 1's marker, so both stops share one pin instead of two pins on top of each other. The pin opens whichever of its stops is next (or current); after the tour, it opens the later visit.
-- **Placeholder stops.** Add `"hidden": true` to a stop to keep it in the file without showing it (the Paris stop is like this). Routes to or from a hidden stop wait too. Delete the line, and give the stop an `order`, to bring it back.
+- **Placeholder stops.** Add `"hidden": true` to a stop to keep it in the file without showing it (for example, a stop you are still writing). Routes to or from a hidden stop wait too. Delete the line, and give the stop an `order`, to bring it back.
 - **`labelPosition`** can be `"left"`, `"right"`, `"top"`, or `"bottom"`. Use it if a place name covers something.
 - **How the camera moves.** For a new stop, the map first shows the whole route being drawn (with the ship sailing on sea routes), then flies in close on the place.
 - **`frame`** (optional) lists extra `[longitude, latitude]` points the close-up must include. Martinique's frame is two opposite corners around the whole island, so you see the island, not just the town. Without a `frame`, the close-up fits the stop's markers.
@@ -124,7 +124,7 @@ Each route is one animated line on the map.
 
 A stop can end with a **scene**: clicking the stop flies in to the island and keeps going without stopping, until a full-screen picture grows out of the scene's spot on the map. The picture drifts slowly, has pulsing hotspots the viewer can click for a short note, a caption with the credit, and a "Back to the map" button (Esc also works). A "View the scene" button in the panel opens it again.
 
-The Martinique, Nantes, Gorée, Bordeaux and Versailles scenes are **AI-generated illustrations** made for this project (in Canva, styled after William Clark's 1823 Antigua prints). Each caption says plainly that it is a modern illustration and not a historical source. They are `assets/images/martinique-cacao-scene.jpg`, `assets/images/nantes-quay-scene.jpg`, `assets/images/goree-harbour-scene.jpg`, `assets/images/bordeaux-port-scene.jpg` and `assets/images/versailles-chocolate-scene.jpg`, and all are animated in the browser (see `animate` below). A stop with several places has one scene; its `coordinates` say which place the camera dives into.
+The Martinique, Nantes, Gorée, Bordeaux, Versailles and Paris scenes are **AI-generated illustrations** made for this project (in Canva, styled after William Clark's 1823 Antigua prints). Each caption says plainly that it is a modern illustration and not a historical source. They are `assets/images/martinique-cacao-scene.jpg`, `assets/images/nantes-quay-scene.jpg`, `assets/images/goree-harbour-scene.jpg`, `assets/images/bordeaux-port-scene.jpg`, `assets/images/versailles-chocolate-scene.jpg` and `assets/images/paris-chocolate-shop-scene.jpg`, and all are animated in the browser (see `animate` below). A stop with several places has one scene; its `coordinates` say which place the camera dives into.
 
 Add a `scene` block to the stop in `data/stops.json`:
 

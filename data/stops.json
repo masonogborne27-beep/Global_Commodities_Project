@@ -608,7 +608,6 @@
 
     {
       "id": "paris",
-      "hidden": true,
       "order": 7,
       "title": "TODO: title for the Paris stop",
       "place": "Paris, France",
@@ -620,6 +619,65 @@
       "markers": [
         { "id": "paris", "name": "Paris", "coordinates": [2.352, 48.857], "labelPosition": "right" }
       ],
+      "scene": {
+        "image": "assets/images/paris-chocolate-shop-scene.jpg",
+        "coordinates": [2.352, 48.857],
+        "alt": "Painted illustration of a chocolate maker's shop in Paris: a worker stirs cacao beans roasting in a wide iron pan over a fire, and another kneels to grind the roasted beans into dark paste with a stone roller on a heated grinding stone, while a cat watches beside the coals. An apprentice spoons chocolate into tin moulds on a table laid with chocolate tablets, sugar cones and bundles of vanilla and cinnamon; behind the counter the shopkeeper weighs chocolate on brass scales for a lady and her daughter, and a gentleman in a tricorne sips a cup of hot chocolate. Sacks of cacao marked with ships stand on the floor, and through the open shop window a street of tall houses with a carriage leads to the towers of Notre-Dame.",
+        "title": "A chocolate maker's shop in Paris",
+        "year": "c. 1760",
+        "note": "AI illustration made for this project, not a historical source",
+        "caption": "TODO: one or two sentences about what this picture shows (and that it is a modern reconstruction)",
+        "credit": "AI-generated illustration (Canva), styled after William Clark, Ten Views in the Island of Antigua (1823)",
+        "license": "Made for this project",
+        "sourceUrl": "",
+        "animate": {
+          "sky": [0.15, 0.0, 0.45, 0.2],
+          "shimmer": [[0.1, 0.66, 0.24, 0.72], [0.41, 0.82, 0.48, 0.88]],
+          "smoke": [[0.16, 0.57]],
+          "motes": { "box": [0.15, 0.2, 0.6, 0.8], "count": 30 },
+          "figures": [
+            { "name": "Worker stirring the roasting beans", "style": "work", "speed": 0.45, "rests": true, "parts": [
+              {"path": [[0.11, 0.4], [0.14, 0.55], [0.2, 0.6]], "joint": [0.11, 0.4], "width": 0.035, "turn": -4},
+              {"path": [[0.1, 0.27], [0.1, 0.31]], "joint": [0.1, 0.34], "width": 0.035, "turn": 2, "style": "sway", "speed": 0.3}
+            ] },
+            { "name": "Worker grinding cacao on the stone", "style": "work", "speed": 0.5, "rests": true, "parts": [
+              {"path": [[0.34, 0.58], [0.395, 0.67]], "joint": [0.33, 0.57], "width": 0.04, "turn": 0, "slide": [0.006, 0.002]},
+              {"path": [[0.3, 0.62], [0.35, 0.52]], "joint": [0.27, 0.72], "width": 0.045, "turn": 1.5}
+            ] },
+            { "name": "Gentleman sipping chocolate", "style": "work", "speed": 0.2, "rests": true, "parts": [
+              {"path": [[0.515, 0.41], [0.553, 0.365]], "joint": [0.515, 0.42], "width": 0.03, "turn": 4},
+              {"path": [[0.535, 0.24], [0.535, 0.29]], "joint": [0.535, 0.31], "width": 0.035, "turn": 2, "style": "sway", "speed": 0.25}
+            ] },
+            { "name": "Girl watching the scales", "style": "sway", "speed": 0.35, "phase": 0.3, "parts": [
+              {"path": [[0.623, 0.315], [0.623, 0.35]], "joint": [0.623, 0.37], "width": 0.03, "turn": 3}
+            ] },
+            { "name": "Lady buying chocolate", "style": "sway", "speed": 0.3, "phase": 0.6, "rests": true, "parts": [
+              {"path": [[0.69, 0.22], [0.69, 0.27]], "joint": [0.69, 0.29], "width": 0.035, "turn": 2},
+              {"path": [[0.715, 0.34], [0.76, 0.4]], "joint": [0.715, 0.34], "width": 0.028, "turn": 4}
+            ] },
+            { "name": "Shopkeeper weighing on the scales", "style": "sway", "speed": 0.4, "rests": true, "parts": [
+              {"path": [[0.835, 0.33], [0.79, 0.36]], "joint": [0.835, 0.33], "width": 0.03, "turn": 3},
+              {"path": [[0.855, 0.22], [0.855, 0.27]], "joint": [0.855, 0.29], "width": 0.035, "turn": 2, "phase": 0.4, "speed": 0.3}
+            ] },
+            { "name": "Apprentice filling the moulds", "style": "work", "speed": 0.35, "phase": 0.2, "rests": true, "parts": [
+              {"path": [[0.645, 0.57], [0.7, 0.7]], "joint": [0.645, 0.57], "width": 0.035, "turn": -3},
+              {"path": [[0.66, 0.47], [0.66, 0.52]], "joint": [0.66, 0.55], "width": 0.035, "turn": 2, "style": "sway", "speed": 0.3}
+            ] },
+            { "name": "Cat by the coals", "style": "work", "speed": 0.15, "rests": true, "parts": [
+              {"path": [[0.505, 0.83], [0.505, 0.87]], "joint": [0.505, 0.89], "width": 0.03, "turn": 5}
+            ] },
+            { "name": "People in the street", "style": "sway", "speed": 0.7, "parts": [
+              {"path": [[0.18, 0.39], [0.18, 0.47]], "joint": [0.18, 0.49], "width": 0.025, "turn": 1.5},
+              {"path": [[0.26, 0.38], [0.26, 0.47]], "joint": [0.26, 0.49], "width": 0.025, "turn": 1.5, "phase": 0.4}
+            ] },
+            { "name": "Carriage in the street", "style": "sway", "speed": 0.2, "parts": [
+              {"path": [[0.29, 0.43], [0.33, 0.43]], "joint": [0.31, 0.47], "width": 0.03, "turn": 0, "slide": [0.003, 0]}
+            ] }
+          ]
+        },
+        "pan": { "from": [0.36, 0.55], "to": [0.64, 0.5], "zoomFrom": 1.08, "zoomTo": 1.14, "seconds": 45 },
+        "hotspots": []
+      },
       "narrative": [
         "TODO: narrative paragraph 1 about chocolate in Paris",
         "TODO: narrative paragraph 2 about ___"
