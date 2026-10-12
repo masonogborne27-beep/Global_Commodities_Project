@@ -517,6 +517,65 @@
       "markers": [
         { "id": "versailles", "name": "Versailles", "coordinates": [2.120, 48.805], "labelPosition": "left" }
       ],
+      "scene": {
+        "image": "assets/images/versailles-chocolate-scene.jpg",
+        "coordinates": [2.120, 48.805],
+        "alt": "Painted illustration of a morning chocolate gathering in a gilded salon at Versailles: a lady in a wide pale silk gown sits at a small gilded table raising a porcelain cup of hot chocolate, while a nobleman in an embroidered rose coat stands beside her holding his cup. A liveried servant pours chocolate from a tall silver chocolate pot into cups on a silver tray, a maid in an apron carries a tray of cups and a page boy holds a plate of cakes. A lady with a fan sits on a sofa beside a small spaniel on a cushion, and two gentlemen sip chocolate at tall open windows overlooking the formal gardens and the Grand Canal, under a crystal chandelier.",
+        "title": "Chocolate at the court of Versailles",
+        "year": "c. 1760",
+        "note": "AI illustration made for this project, not a historical source",
+        "caption": "TODO: one or two sentences about what this picture shows (and that it is a modern reconstruction)",
+        "credit": "AI-generated illustration (Canva), styled after William Clark, Ten Views in the Island of Antigua (1823)",
+        "license": "Made for this project",
+        "sourceUrl": "",
+        "animate": {
+          "sway": [
+            { "box": [0.0, 0.2, 0.14, 0.42], "amount": 0.6 },
+            { "box": [0.47, 0.25, 0.5, 0.33], "amount": 0.5 }
+          ],
+          "sky": [0.0, 0.0, 0.3, 0.25],
+          "birds": { "count": 2, "band": [0.02, 0.03, 0.28, 0.18] },
+          "motes": { "box": [0.0, 0.2, 0.6, 0.9], "count": 30 },
+          "figures": [
+            { "name": "Lady fanning herself on the sofa", "style": "sway", "speed": 0.9, "parts": [
+              {"path": [[0.16, 0.6], [0.175, 0.65]], "joint": [0.17, 0.66], "width": 0.03, "turn": 6},
+              {"path": [[0.088, 0.47], [0.09, 0.52]], "joint": [0.092, 0.55], "width": 0.035, "turn": 2, "speed": 0.25, "rests": true}
+            ] },
+            { "name": "Gentlemen at the window", "style": "sway", "speed": 0.25, "parts": [
+              {"path": [[0.2, 0.37], [0.205, 0.65]], "joint": [0.21, 0.74], "width": 0.04, "turn": 1},
+              {"path": [[0.28, 0.36], [0.28, 0.62]], "joint": [0.28, 0.74], "width": 0.04, "turn": 1, "phase": 0.5},
+              {"path": [[0.275, 0.36], [0.275, 0.4]], "joint": [0.275, 0.42], "width": 0.03, "turn": 3, "style": "work", "speed": 0.2, "rests": true}
+            ] },
+            { "name": "Spaniel on its cushion", "style": "work", "speed": 0.25, "rests": true, "parts": [
+              {"path": [[0.275, 0.83], [0.28, 0.86]], "joint": [0.27, 0.88], "width": 0.035, "turn": 5}
+            ] },
+            { "name": "Nobleman raising his cup", "style": "work", "speed": 0.3, "rests": true, "parts": [
+              {"path": [[0.375, 0.47], [0.418, 0.508]], "joint": [0.375, 0.47], "width": 0.03, "turn": -3},
+              {"path": [[0.388, 0.3], [0.388, 0.35]], "joint": [0.385, 0.38], "width": 0.035, "turn": 3, "style": "sway", "speed": 0.3}
+            ] },
+            { "name": "Lady sipping chocolate", "style": "work", "speed": 0.22, "phase": 0.4, "rests": true, "parts": [
+              {"path": [[0.44, 0.6], [0.455, 0.535]], "joint": [0.44, 0.6], "width": 0.03, "turn": 5},
+              {"path": [[0.49, 0.44], [0.49, 0.5]], "joint": [0.49, 0.53], "width": 0.035, "turn": -2, "style": "sway", "speed": 0.3}
+            ] },
+            { "name": "Servant pouring from the chocolate pot", "style": "work", "speed": 0.3, "rests": true, "parts": [
+              {"path": [[0.612, 0.44], [0.61, 0.53]], "joint": [0.61, 0.56], "width": 0.03, "turn": 4},
+              {"path": [[0.68, 0.32], [0.68, 0.37]], "joint": [0.685, 0.4], "width": 0.035, "turn": 2, "style": "sway", "speed": 0.3}
+            ] },
+            { "name": "Maid carrying cups", "style": "sway", "speed": 0.45, "parts": [
+              {"path": [[0.81, 0.34], [0.81, 0.8]], "joint": [0.81, 0.92], "width": 0.05, "turn": 1},
+              {"path": [[0.81, 0.34], [0.81, 0.38]], "joint": [0.815, 0.41], "width": 0.03, "turn": 2.5, "phase": 0.3, "speed": 0.3}
+            ] },
+            { "name": "Page boy with cakes", "style": "sway", "speed": 0.4, "phase": 0.6, "parts": [
+              {"path": [[0.92, 0.48], [0.915, 0.8]], "joint": [0.915, 0.92], "width": 0.05, "turn": 1}
+            ] },
+            { "name": "Chandelier", "style": "sway", "speed": 0.15, "parts": [
+              {"path": [[0.695, 0.02], [0.695, 0.22]], "joint": [0.695, 0.0], "width": 0.07, "turn": 0.8}
+            ] }
+          ]
+        },
+        "pan": { "from": [0.36, 0.55], "to": [0.64, 0.5], "zoomFrom": 1.08, "zoomTo": 1.14, "seconds": 45 },
+        "hotspots": []
+      },
       "narrative": [
         "TODO: narrative paragraph 1 about chocolate at the French court in Versailles",
         "TODO: narrative paragraph 2 about ___"

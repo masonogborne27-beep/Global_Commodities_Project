@@ -124,7 +124,7 @@ Each route is one animated line on the map.
 
 A stop can end with a **scene**: clicking the stop flies in to the island and keeps going without stopping, until a full-screen picture grows out of the scene's spot on the map. The picture drifts slowly, has pulsing hotspots the viewer can click for a short note, a caption with the credit, and a "Back to the map" button (Esc also works). A "View the scene" button in the panel opens it again.
 
-The Martinique, Nantes, Gorée and Bordeaux scenes are **AI-generated illustrations** made for this project (in Canva, styled after William Clark's 1823 Antigua prints). Each caption says plainly that it is a modern illustration and not a historical source. They are `assets/images/martinique-cacao-scene.jpg`, `assets/images/nantes-quay-scene.jpg`, `assets/images/goree-harbour-scene.jpg` and `assets/images/bordeaux-port-scene.jpg`, and all are animated in the browser (see `animate` below). A stop with several places has one scene; its `coordinates` say which place the camera dives into.
+The Martinique, Nantes, Gorée, Bordeaux and Versailles scenes are **AI-generated illustrations** made for this project (in Canva, styled after William Clark's 1823 Antigua prints). Each caption says plainly that it is a modern illustration and not a historical source. They are `assets/images/martinique-cacao-scene.jpg`, `assets/images/nantes-quay-scene.jpg`, `assets/images/goree-harbour-scene.jpg`, `assets/images/bordeaux-port-scene.jpg` and `assets/images/versailles-chocolate-scene.jpg`, and all are animated in the browser (see `animate` below). A stop with several places has one scene; its `coordinates` say which place the camera dives into.
 
 Add a `scene` block to the stop in `data/stops.json`:
 
