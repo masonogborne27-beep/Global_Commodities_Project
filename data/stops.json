@@ -608,7 +608,6 @@
 
     {
       "id": "paris",
-      "hidden": true,
       "order": 7,
       "title": "TODO: title for the Paris stop",
       "place": "Paris, France",
