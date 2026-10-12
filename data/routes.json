@@ -28,6 +28,14 @@
       "via": [[-52, 22], [-34, 35], [-14, 44.6], [-2.5, 45.5]]
     },
     {
+      "id": "bordeaux-versailles",
+      "from": "bordeaux",
+      "to": "versailles",
+      "type": "land",
+      "goods": ["TODO: goods carried"],
+      "revealedAt": "versailles"
+    },
+    {
       "id": "bordeaux-paris",
       "from": "bordeaux",
       "to": "paris",

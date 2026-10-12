@@ -505,22 +505,20 @@
     },
 
     {
-      "id": "paris",
-      "hidden": true,
+      "id": "versailles",
       "order": 6,
-      "title": "TODO: title for the Paris / Versailles stop",
-      "place": "Paris and Versailles, France",
+      "title": "TODO: title for the Versailles stop",
+      "place": "Versailles, France",
       "dateRange": "TODO: date range",
       "yearLabel": "c. TODO",
-      "coordinates": [2.236, 48.831],
+      "coordinates": [2.120, 48.805],
       "zoom": 800,
-      "frame": [[1.8, 48.55], [2.7, 49.05]],
+      "frame": [[1.95, 48.72], [2.3, 48.89]],
       "markers": [
-        { "id": "paris", "name": "Paris", "coordinates": [2.352, 48.857], "labelPosition": "right" },
         { "id": "versailles", "name": "Versailles", "coordinates": [2.120, 48.805], "labelPosition": "left" }
       ],
       "narrative": [
-        "TODO: narrative paragraph 1 about chocolate at the French court",
+        "TODO: narrative paragraph 1 about chocolate at the French court in Versailles",
         "TODO: narrative paragraph 2 about ___"
       ],
       "images": [
@@ -543,7 +541,51 @@
         "goodsOut": ["TODO: ___"],
         "goodsIn": ["TODO: ___"]
       },
-      "globalization": "TODO: connection to globalization for Paris / Versailles",
+      "globalization": "TODO: connection to globalization for Versailles",
+      "sources": [
+        { "citation": "TODO: full citation", "url": "" }
+      ]
+    },
+
+    {
+      "id": "paris",
+      "hidden": true,
+      "order": 7,
+      "title": "TODO: title for the Paris stop",
+      "place": "Paris, France",
+      "dateRange": "TODO: date range",
+      "yearLabel": "c. TODO",
+      "coordinates": [2.352, 48.857],
+      "zoom": 800,
+      "frame": [[2.2, 48.78], [2.5, 48.93]],
+      "markers": [
+        { "id": "paris", "name": "Paris", "coordinates": [2.352, 48.857], "labelPosition": "right" }
+      ],
+      "narrative": [
+        "TODO: narrative paragraph 1 about chocolate in Paris",
+        "TODO: narrative paragraph 2 about ___"
+      ],
+      "images": [
+        {
+          "src": "assets/images/placeholder-landscape.svg",
+          "alt": "TODO: describe what the image shows for screen-reader users",
+          "caption": "TODO: caption",
+          "credit": "TODO: artist / collection / source",
+          "license": "TODO: e.g. Public domain"
+        },
+        {
+          "src": "assets/images/placeholder-portrait.svg",
+          "alt": "TODO: describe what the image shows for screen-reader users",
+          "caption": "TODO: caption",
+          "credit": "TODO: artist / collection / source",
+          "license": "TODO: e.g. Public domain"
+        }
+      ],
+      "traded": {
+        "goodsOut": ["TODO: ___"],
+        "goodsIn": ["TODO: ___"]
+      },
+      "globalization": "TODO: connection to globalization for Paris",
       "sources": [
         { "citation": "TODO: full citation", "url": "" }
       ]
