@@ -1093,17 +1093,14 @@
     if (window.CacaoScene) CacaoScene.resize();
   }
 
+  // The caption over the picture: when, what, and the AI-illustration note.
+  // (The scene's credit and license stay in stops.json but aren't shown here.)
   function renderSceneCaption(stop) {
     const sc = stop.scene;
-    const bits = [];
-    if (sc.credit) bits.push(text(sc.credit));
-    if (sc.license) bits.push(bits.length ? ' · ' : '', text(sc.license));
-    if (sc.sourceUrl) bits.push(' ', el('a', { href: sc.sourceUrl, target: '_blank', rel: 'noopener noreferrer' }, 'Source'));
     els.sceneCaption.replaceChildren(...[
       el('span', { class: 'scene-kicker' }, sc.year ? `A scene from ${sc.year}` : 'A scene'),
       el('span', { class: 'scene-title' }, sc.title || stop.place || ''),
-      sc.note && !sc.isFallback ? el('span', { class: 'scene-note' }, sc.note) : null,
-      bits.length && !sc.isFallback ? el('span', { class: 'scene-credit' }, bits) : null
+      sc.note && !sc.isFallback ? el('span', { class: 'scene-note' }, sc.note) : null
     ].filter(Boolean));
   }
 

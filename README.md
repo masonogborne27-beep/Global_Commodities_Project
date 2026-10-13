@@ -122,7 +122,7 @@ Each route is one animated line on the map.
 
 ## Adding a scene (a picture the camera dives into)
 
-A stop can end with a **scene**: clicking the stop flies in to the island and keeps going without stopping, until a full-screen picture grows out of the scene's spot on the map. The picture drifts slowly, has pulsing hotspots the viewer can click for a short note, a caption with the credit, and a "Back to the map" button (Esc also works). A "View the scene" button in the panel opens it again.
+A stop can end with a **scene**: clicking the stop flies in to the island and keeps going without stopping, until a full-screen picture grows out of the scene's spot on the map. The picture drifts slowly, has pulsing hotspots the viewer can click for a short note, a caption with its title and the AI-illustration note, and a "Back to the map" button (Esc also works). A "View the scene" button in the panel opens it again.
 
 The Martinique, Nantes, Gorée, Bordeaux, Versailles and Paris scenes are **AI-generated illustrations** made for this project (in Canva, styled after William Clark's 1823 Antigua prints). Each caption says plainly that it is a modern illustration and not a historical source. They are `assets/images/martinique-cacao-scene.jpg`, `assets/images/nantes-quay-scene.jpg`, `assets/images/goree-harbour-scene.jpg`, `assets/images/bordeaux-port-scene.jpg`, `assets/images/versailles-chocolate-scene.jpg` and `assets/images/paris-chocolate-shop-scene.jpg`, and all are animated in the browser (see `animate` below). A stop with several places has one scene; its `coordinates` say which place the camera dives into.
 
@@ -171,7 +171,7 @@ Add a `scene` block to the stop in `data/stops.json`:
 - **`pan`** (optional) is the slow drift: it moves from the point `from` to the point `to`, zooming from `zoomFrom` to `zoomTo`, over `seconds`, then back. Points are fractions of the picture, `[across, down]`, so `[0, 0]` is the top-left corner and `[1, 1]` the bottom-right. Leave `pan` out for a still picture with a gentle breathe. Keep `zoomFrom` a little above 1 (e.g. `1.08`): as the cloud clears after the dive, the picture zooms in from filling the screen to that size, so the zoom carries on into the scene.
 - **`hotspots`** are the clickable pins, also placed as fractions of the picture. To find a position, open the image, note where the thing is as a share of the width and height, and round to two decimals. Each needs a `label` (shown under the pin) and `text` (shown when clicked).
 - Use a picture at least 1600 px wide so it stays sharp full-screen, and keep it under about 800 KB.
-- The credit and license appear in the scene's caption and in the **Sources** dialog automatically.
+- The credit and license appear in the panel's "The scene" section and in the **Sources** dialog automatically (not over the picture itself).
 
 ### Where to find a real picture
 
