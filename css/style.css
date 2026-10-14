@@ -691,6 +691,18 @@ body.panel-open .compass { transform: translateX(calc(-1 * var(--panel-w))); }
 }
 .route-type.land { background: var(--route-land); }
 
+.firsthand { margin: 20px 0 4px; }
+.firsthand blockquote {
+  margin: 0 0 8px;
+  padding: 4px 0 4px 14px;
+  border-left: 3px solid var(--gold);
+  font-style: italic;
+}
+.firsthand blockquote p { margin: 0 0 0.5em; }
+.firsthand-source { margin: 0 0 10px; font-size: 15px; color: var(--ink-soft); }
+.firsthand h4 { margin: 12px 0 4px; font-size: 16px; }
+.firsthand > p { margin: 0 0 0.6em; }
+
 .callout {
   margin: 22px 0 8px;
   padding: 14px 16px 16px;

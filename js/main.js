@@ -1463,6 +1463,17 @@
       }, 'View the scene →'));
   }
 
+  // A quoted primary source and why it matters ("firsthand" in stops.json).
+  function firsthandSection(f) {
+    if (!f || (!f.quote && !f.importance)) return null;
+    return el('section', { class: 'firsthand' },
+      el('h3', null, 'Firsthand account'),
+      f.quote ? el('blockquote', null, paragraphs(f.quote)) : null,
+      f.source ? el('p', { class: 'firsthand-source' }, '— ', text(f.source)) : null,
+      f.importance ? el('h4', null, 'Why is this primary source important?') : null,
+      f.importance ? paragraphs(f.importance) : null);
+  }
+
   function callout(title, body) {
     if (!body) return null;
     return el('aside', { class: 'callout' }, el('h3', null, title), paragraphs(body));
@@ -1504,6 +1515,7 @@
       // The explainer: title, date, paragraph(s) and the connection to
       // globalization. A stop's sources are listed in the Sources dialog.
       el('div', { class: 'narrative' }, paragraphs(stop.narrative)),
+      firsthandSection(stop.firsthand),
       callout('Connection to globalization', stop.globalization),
       sceneSection(stop)
     );
