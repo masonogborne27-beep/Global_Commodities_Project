@@ -916,15 +916,13 @@
     highlightRoutes(null);
     hideHint();
     updateMarkers();
-    const conclusion = state.data.conclusion || {};
-    setYear(conclusion.yearLabel);
+    setYear(tourYears());
 
+    // The end of the tour: zoom out to the whole network (no closing panel).
     closePanel();
     await flyTo(finaleTransform(), ms(CONFIG.finaleFlyMs));
     if (token !== state.nav) return;
-
-    renderConclusionPanel();
-    openPanel();
+    showHint();
 
     if (!ms(1)) return; // reduced motion: routes are already all showing
     // Redraw the whole network, one stop's routes after another.
@@ -948,6 +946,12 @@
     showOverview(ms(CONFIG.flyMs));
     showHint();
     prefetchAhead();
+  }
+
+  // The span of years the stops cover, e.g. "1660–1790", for the year badge.
+  function tourYears() {
+    const years = state.stops.flatMap((s) => String(s.dateRange || '').match(/\b1[0-9]{3}\b/g) || []).map(Number);
+    return years.length ? `${Math.min(...years)}–${Math.max(...years)}` : '';
   }
 
   function restart() {
@@ -1383,7 +1387,7 @@
         el('button', { type: 'button', class: 'btn btn-ghost', onclick: goToFinale }, 'See the whole network →'));
     } else {
       els.hint.append('Click any marker to revisit a stop. ',
-        el('button', { type: 'button', class: 'btn btn-ghost', onclick: goToFinale }, 'Closing summary'));
+        el('button', { type: 'button', class: 'btn btn-ghost', onclick: restart }, '↺ Start over'));
     }
     els.hint.hidden = false;
   }
@@ -1434,28 +1438,6 @@
     if (place) bits.push(el('span', { class: 'place' }, place));
     if (dates) bits.push(el('span', { class: 'dates' }, dates));
     return bits.length ? el('p', { class: 'panel-meta' }, bits) : null;
-  }
-
-  function figures(images) {
-    const list = asArray(images).filter((img) => img && img.src);
-    if (!list.length) return null;
-    return el('div', { class: 'figures' }, list.map((img) => {
-      if (!img.alt) console.warn(`stops.json: image "${img.src}" has no "alt" text.`);
-      const image = el('img', { src: img.src, alt: img.alt || '', loading: 'lazy', decoding: 'async' });
-      image.addEventListener('error', () => {
-        image.replaceWith(el('div', { class: 'img-missing' }, `Image not found: ${img.src}`));
-      });
-      const creditBits = [];
-      if (img.credit) creditBits.push('Credit: ', text(img.credit));
-      if (img.license) creditBits.push(creditBits.length ? ' · ' : '', 'License: ', text(img.license));
-      return el('figure', { class: 'figure' },
-        image,
-        el('figcaption', null,
-          img.caption ? el('span', { class: 'caption' }, img.caption) : null,
-          creditBits.length ? el('span', { class: 'credit' }, creditBits) : null
-        )
-      );
-    }));
   }
 
   // Just the button that reopens the scene; its title and AI note are shown
@@ -1513,14 +1495,6 @@
       src.url ? [' ', el('a', { href: src.url, target: '_blank', rel: 'noopener noreferrer' }, 'Link')] : null);
   }
 
-  function sourcesSection(title, sources) {
-    const list = asArray(sources);
-    if (!list.length) return null;
-    return el('section', { class: 'stop-sources' },
-      el('h3', null, title),
-      el('ol', { class: 'source-list' }, list.map(sourceItem)));
-  }
-
   function setFooter(...buttons) {
     els.panelFooter.replaceChildren(...buttons.filter(Boolean));
   }
@@ -1562,35 +1536,6 @@
       next = el('button', { type: 'button', class: 'btn btn-primary', onclick: goToFinale }, 'See the whole network →');
     }
     setFooter(prev, next);
-  }
-
-  function renderConclusionPanel() {
-    const c = state.data.conclusion || {};
-    setPanelBody(
-      el('p', { class: 'panel-kicker' }, 'Journey’s end'),
-      el('h2', { class: 'panel-title', id: 'panel-title', tabindex: '-1' }, c.title || 'The whole network'),
-      metaLine(null, c.yearLabel),
-      el('div', { class: 'panel-rule', 'aria-hidden': 'true' }),
-      el('div', { class: 'narrative' }, paragraphs(c.narrative)),
-      figures(c.images),
-      callout('Our thesis', c.thesis),
-      el('section', null,
-        el('h3', null, 'Revisit a stop'),
-        el('ol', { class: 'source-list' }, state.stops.map((s) => el('li', null,
-          el('a', {
-            href: '#',
-            onclick: (e) => { e.preventDefault(); goToStop(s.index); }
-          }, s.place || s.title || `Stop ${s.index + 1}`))))),
-      sourcesSection('Sources', c.sources)
-    );
-    setFooter(
-      el('button', { type: 'button', class: 'btn btn-secondary', onclick: restart }, '↺ Start over'),
-      el('button', {
-        type: 'button',
-        class: 'btn btn-primary',
-        onclick: () => { closePanel({ returnFocus: true }); }
-      }, 'Explore the map')
-    );
   }
 
   /* ------------------------------------------------------------------------
@@ -1655,17 +1600,6 @@
           text(img.caption || img.alt || img.src), ': ',
           text(img.credit || 'credit missing'), ' (', text(img.license || 'license missing'), ')',
           img.sourceUrl ? [' ', el('a', { href: img.sourceUrl, target: '_blank', rel: 'noopener noreferrer' }, 'Source')] : null))));
-    }
-
-    const c = state.data.conclusion || {};
-    const cImages = asArray(c.images).filter((img) => img && img.src);
-    if (asArray(c.sources).length || cImages.length) {
-      body.append(el('h3', null, 'Conclusion'));
-      if (asArray(c.sources).length) body.append(el('ol', { class: 'source-list' }, asArray(c.sources).map(sourceItem)));
-      if (cImages.length) {
-        body.append(el('h4', null, 'Image credits'), el('ul', { class: 'source-list' }, cImages.map((img) =>
-          el('li', null, text(img.caption || img.src), ': ', text(img.credit || ''), ' (', text(img.license || ''), ')'))));
-      }
     }
 
     const general = asArray(state.data.generalSources);
