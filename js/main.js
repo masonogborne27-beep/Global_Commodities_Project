@@ -1451,31 +1451,6 @@
     }));
   }
 
-  function tradedSection(traded) {
-    if (!traded) return null;
-    const out = asArray(traded.goodsOut);
-    const inn = asArray(traded.goodsIn);
-    if (!out.length && !inn.length) return null;
-    const col = (title, items) => el('div', { class: 'traded-col' },
-      el('h4', null, title),
-      items.length ? el('ul', null, items.map((g) => el('li', null, g))) : el('p', null, '—'));
-    return el('section', { class: 'traded' },
-      el('h3', null, 'What was traded'),
-      el('div', { class: 'traded-cols' }, col('Goods out', out), col('Goods in', inn)));
-  }
-
-  function routesSection(routes) {
-    if (!routes.length) return null;
-    return el('section', { class: 'routes-here' },
-      el('h3', null, routes.length > 1 ? 'Routes shown here' : 'Route shown here'),
-      el('ul', { class: 'route-list' }, routes.map((r) => el('li', null,
-        el('span', { class: 'route-name' }, r.label || `${r.from.name} → ${r.to.name}`),
-        el('span', { class: `route-type ${r.type}` }, r.type === 'ocean' ? 'by sea' : 'overland'),
-        r.goods.length ? el('div', null, 'Carried: ', text(r.goods.join('; '))) : null
-      )))
-    );
-  }
-
   function sceneSection(stop) {
     const sc = stop.scene;
     if (!sc) return null;
@@ -1532,13 +1507,11 @@
       el('h2', { class: 'panel-title', id: 'panel-title', tabindex: '-1' }, stop.title || stop.place || ''),
       metaLine(stop.place, stop.dateRange),
       el('div', { class: 'panel-rule', 'aria-hidden': 'true' }),
+      // The explainer: title, date, paragraph(s) and the connection to
+      // globalization. A stop's sources are listed in the Sources dialog.
       el('div', { class: 'narrative' }, paragraphs(stop.narrative)),
-      figures(stop.images),
-      sceneSection(stop),
-      tradedSection(stop.traded),
-      routesSection(routesFor(stop)),
       callout('Connection to globalization', stop.globalization),
-      sourcesSection('Sources for this stop', stop.sources)
+      sceneSection(stop)
     );
 
     const prev = i > 0
@@ -1625,7 +1598,7 @@
 
     state.stops.forEach((stop) => {
       const sources = asArray(stop.sources);
-      const images = asArray(stop.images).filter((img) => img && img.src);
+      const images = asArray(stop.images).filter((img) => img && img.src && !/placeholder-/.test(img.src));
       body.append(el('h3', null, `${stop.index + 1}. `, text(stop.place || stop.title || '')));
       if (sources.length) {
         body.append(el('h4', null, 'Sources'), el('ol', { class: 'source-list' }, sources.map(sourceItem)));

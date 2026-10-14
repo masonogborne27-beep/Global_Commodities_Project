@@ -44,9 +44,9 @@ Any text that starts with `TODO` shows up **highlighted in yellow** on the site.
 {
   "id": "martinique",              // short unique name, no spaces. routes.json refers to it
   "order": 1,                      // position in the tour
-  "title": "…",                    // big heading in the panel
-  "place": "Saint-Pierre, Martinique",
-  "dateRange": "…",                // e.g. "1660–1750"
+  "title": "Nantes",               // big heading in the panel ("Title")
+  "place": "Nantes, France",
+  "dateRange": "18th Century (c. 1700-1790)",   // shown under the title ("Date")
   "yearLabel": "c. 1660",          // shown in the Year badge at the top left
   "coordinates": [-61.176, 14.743],
   "zoom": 600,                     // how close the map may zoom in (bigger = closer)
@@ -55,17 +55,9 @@ Any text that starts with `TODO` shows up **highlighted in yellow** on the site.
     { "id": "saint-pierre", "name": "Saint-Pierre",
       "coordinates": [-61.176, 14.743], "labelPosition": "right" }
   ],
-  "narrative": ["Paragraph 1", "Paragraph 2", "Paragraph 3"],
-  "images": [
-    { "src": "assets/images/my-picture.jpg",
-      "alt": "Describe what the picture shows, for blind users",
-      "caption": "What the viewer should notice",
-      "credit": "Artist, title, collection or museum",
-      "license": "Public domain" }
-  ],
-  "traded": { "goodsOut": ["…"], "goodsIn": ["…"] },
+  "narrative": ["Paragraph 1"],    // the explainer ("Paragraph"); add more items for more paragraphs
   "globalization": "The 'Connection to globalization' box",
-  "sources": [
+  "sources": [                     // listed in the Sources dialog, not in the panel
     { "citation": "Author. Title. Publisher, Year.", "url": "https://…" }
   ]
 }
@@ -82,6 +74,7 @@ Any text that starts with `TODO` shows up **highlighted in yellow** on the site.
 - **How the camera moves.** For a new stop, the map first shows the whole route being drawn (with the ship sailing on sea routes), then flies in close on the place.
 - **`frame`** (optional) lists extra `[longitude, latitude]` points the close-up must include. Martinique's frame is two opposite corners around the whole island, so you see the island, not just the town. Without a `frame`, the close-up fits the stop's markers.
 - **`zoom`** is an upper limit on the close-up. Around `8` shows a region, `150` shows a stretch of coast, and `600`–`800` shows a single island or city.
+- **The explainer panel** shows, in order: the stop's `title`, its `place` and `dateRange`, the `narrative` paragraph(s), the "Connection to globalization" box, and the scene button. Its `sources` don't appear in the panel; they're listed under that stop in the **Sources** dialog (top right).
 - **`narrative`** is a list, and each item becomes one paragraph.
 - **`sources`** entries can be `{ "citation": "…", "url": "…" }` or just a plain text string. `url` can be left as `""`.
 - **To reorder, add, or remove stops**, change the `order` numbers or add or delete whole `{ … }` stop blocks. The "Stop X of Y" counter and the Next buttons update automatically.
