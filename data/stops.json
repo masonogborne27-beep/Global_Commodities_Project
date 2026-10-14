@@ -206,10 +206,10 @@
     {
       "id": "west-africa",
       "order": 3,
-      "title": "TODO: title for the West Africa stop",
+      "title": "West Africa",
       "place": "West Africa",
-      "dateRange": "TODO: date range",
-      "yearLabel": "c. TODO",
+      "dateRange": "1700-1790",
+      "yearLabel": "1700-1790",
       "coordinates": [-17.398, 14.667],
       "zoom": 800,
       "frame": [[-17.95, 14.45], [-17.0, 14.95]],
@@ -287,25 +287,11 @@
         "hotspots": []
       },
       "narrative": [
-        "TODO: narrative paragraph 1 about the forced-labor side of the triangular trade",
-        "TODO: narrative paragraph 2 about ___"
+        "West Africa was the primary destination for ships leaving Nantes and other local French ports. The ships would use the goods they brought to trade in exchange for enslaved people who were captured in wars and raids between African states. It could take a French slave ship three to six months on the coast of West Africa going to different trading posts before they could fill up their ships with enslaved people."
       ],
-      "images": [
-        {
-          "src": "assets/images/placeholder-landscape.svg",
-          "alt": "TODO: describe what the image shows for screen-reader users",
-          "caption": "TODO: caption",
-          "credit": "TODO: artist / collection / source",
-          "license": "TODO: e.g. Public domain"
-        }
-      ],
-      "traded": {
-        "goodsOut": ["TODO: ___"],
-        "goodsIn": ["TODO: ___"]
-      },
-      "globalization": "TODO: connection to globalization for West Africa",
+      "globalization": "West Africa shows how globalization was more than just the transfer of goods between countries and was also the forced removal and relocation of people in order to exploit their labor. As demand for labor increased so did warfare between African nations as a way to capture more people to be traded for goods with the Europeans. Enslaved labor was a large factor that allowed for globalization to occur as rapidly as it did.",
       "sources": [
-        { "citation": "TODO: full citation", "url": "" }
+        { "citation": "Château des ducs de Bretagne, \"Nantes and the Atlantic Slave Trade,\" Google Arts & Culture", "url": "https://artsandculture.google.com/story/nantes-and-the-atlantic-slave-trade-ch%C3%A2teau-des-ducs-de-bretagne/8gUxHNkP-SnbIQ?hl=en" }
       ]
     },
 
