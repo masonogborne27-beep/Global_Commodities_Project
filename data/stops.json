@@ -99,9 +99,9 @@
       },
       "globalization": "Martinique shows how the French Empire used different parts of the world and their climates as a way to grow and export certain goods. The desire for a European country to mass produce a South American crop was a driving force behind the creation of a globalized economy. The use of an island colony such as Martinique demonstrates the importance of globalization through the utilization of African labor, American soil, and European infrastructure.",
       "sources": [
-        { "citation": "Britannica Article", "url": "" },
-        { "citation": "JSTOR Cacao Production Source", "url": "" },
-        { "citation": "Jean-Baptiste Labat, Nouveau voyage aux isles de l’Amérique, vol. 1 (Paris: Giffart, 1722)", "url": "" }
+        { "citation": "Cornevin, Robert. “Martinique - History.” *Encyclopædia Britannica*, 2019, www.britannica.com/place/Martinique/History. Accessed 13 Oct. 2026." },
+        { "citation": "Alden, Dauril. “The Significance of Cacao Production in the Amazon Region During the Late Colonial Period: An Essay in Comparative Economic History.” *Proceedings of the American Philosophical Society*, vol. 120, no. 2, 1976, pp. 103–35. *JSTOR*, www.jstor.org/stable/986517. Accessed 13 Oct. 2026." },
+        { "citation": "Labat, Jean-Baptiste. *Nouveau Voyage Aux Isles De l’Amérique ...* Ch. J.B. Delespine, 1742, archive.org/details/nouveauvoyageau04laba. Accessed 13 Oct. 2026." }
       ]
     },
 
@@ -199,7 +199,7 @@
       ],
       "globalization": "This port allowed France to prepare and send out ships that would acquire the forced labor they used to fuel the globalization of goods. This was their main connection point to Africa and the starting point for their system of global trade and exploitation.",
       "sources": [
-        { "citation": "Château des ducs de Bretagne, \"Nantes and the Atlantic Slave Trade,\" Google Arts & Culture", "url": "https://artsandculture.google.com/story/nantes-and-the-atlantic-slave-trade-ch%C3%A2teau-des-ducs-de-bretagne/8gUxHNkP-SnbIQ?hl=en" }
+        { "citation": "“Nantes and the Atlantic Slave Trade.” *Google Arts & Culture*, artsandculture.google.com/story/nantes-and-the-atlantic-slave-trade-ch%C3%A2teau-des-ducs-de-bretagne/8gUxHNkP-SnbIQ?hl=en. Accessed 13 Oct. 2026." }
       ]
     },
 
@@ -291,7 +291,7 @@
       ],
       "globalization": "West Africa shows how globalization was more than just the transfer of goods between countries and was also the forced removal and relocation of people in order to exploit their labor. As demand for labor increased so did warfare between African nations as a way to capture more people to be traded for goods with the Europeans. Enslaved labor was a large factor that allowed for globalization to occur as rapidly as it did.",
       "sources": [
-        { "citation": "Château des ducs de Bretagne, \"Nantes and the Atlantic Slave Trade,\" Google Arts & Culture", "url": "https://artsandculture.google.com/story/nantes-and-the-atlantic-slave-trade-ch%C3%A2teau-des-ducs-de-bretagne/8gUxHNkP-SnbIQ?hl=en" }
+        { "citation": "“Nantes and the Atlantic Slave Trade.” *Google Arts & Culture*, artsandculture.google.com/story/nantes-and-the-atlantic-slave-trade-ch%C3%A2teau-des-ducs-de-bretagne/8gUxHNkP-SnbIQ?hl=en. Accessed 13 Oct. 2026." }
       ]
     },
 
@@ -428,7 +428,7 @@
       ],
       "globalization": "Bayonne shows how the importation of foreign goods influenced local knowledge and created new trades and jobs otherwise not available. As cacao importations and its popularity increased, so did the availability of knowledge around how to process and distribute it, brought by knowledgeable migrants. This opened up new jobs such as chocolatiers that had not previously existed.",
       "sources": [
-        { "citation": "On the Chocolate Trail, \"That time Jews smuggled chocolate to France (and a recipe for Basque chocolate cake)\" (July 2016)", "url": "https://onthechocolatetrail.org/2016/07/that-time-jews-smuggled-chocolate-to-france-and-a-recipe-for-basque-chocolate-cake/" }
+        { "citation": "Prinz, D. “That Time Jews Smuggled Chocolate to France — and a Recipe for Basque Chocolate Cake.” *On the Chocolate Trail*, 14 July 2016, onthechocolatetrail.org/2016/07/that-time-jews-smuggled-chocolate-to-france-and-a-recipe-for-basque-chocolate-cake/. Accessed 13 Oct. 2026." }
       ]
     },
 
@@ -509,8 +509,8 @@
       ],
       "globalization": "The demand, however, was first only from the wealthy, meaning the cost of growing, harvesting, and then shipping cacao was difficult to profit from. The trade was made worthwhile by the fact that French planters in Martinique relied on enslaved people from Africa. In the late 1600s, the majority of the people on the island were enslaved people, keeping the cost of producing Cacao low and allowing planters and merchants to profit. King Louis XIV reinforced this system by signing the Code Noir in 1685, a law that defined enslaved peoples within the French colonies as property and gave royal approval to the plantation owners in the colonies. In this way, the hot chocolate enjoyment of the nobility depended on the backs of enslaved people suffering in Martinique.",
       "sources": [
-        { "citation": "Château de Versailles, \"Hot chocolate at Versailles\" (Key dates)", "url": "https://en.chateauversailles.fr/discover/history/key-dates/hot-chocolate-versailles" },
-        { "citation": "WTOP, \"What to know about Code Noir, a shocking French law that oversaw the slavery of 1.4 million Africans\" (May 2026)", "url": "https://wtop.com/world/2026/05/what-to-know-about-code-noir-a-shocking-french-law-that-oversaw-the-slavery-of-1-4-million-africans/" },
+        { "citation": "“Hot Chocolate in Versailles.” *Palace of Versailles*, 26 Oct. 2016, en.chateauversailles.fr/discover/history/key-dates/hot-chocolate-versailles. Accessed 13 Oct. 2026." },
+        { "citation": "WTOP Staff. “What to Know About Code Noir, a Shocking French Law That Oversaw the Slavery of 1.4 Million Africans.” *WTOP News*, 28 May 2026, wtop.com/world/2026/05/what-to-know-about-code-noir-a-shocking-french-law-that-oversaw-the-slavery-of-1-4-million-africans/. Accessed 13 Oct. 2026." },
         { "citation": "Morning Star (more info on its royal ties)", "url": "https://morningstaronline.co.uk/node/249879" }
       ]
     }
@@ -527,7 +527,15 @@
     "sources": []
   },
 
-  "generalSources": [
-    { "citation": "TODO: general source used for the whole project", "url": "" }
-  ]
+  "worksCited": [
+    "Alden, Dauril. “The Significance of Cacao Production in the Amazon Region During the Late Colonial Period: An Essay in Comparative Economic History.” *Proceedings of the American Philosophical Society*, vol. 120, no. 2, 1976, pp. 103–35. *JSTOR*, www.jstor.org/stable/986517. Accessed 13 Oct. 2026.",
+    "Cornevin, Robert. “Martinique - History.” *Encyclopædia Britannica*, 2019, www.britannica.com/place/Martinique/History. Accessed 13 Oct. 2026.",
+    "“Hot Chocolate in Versailles.” *Palace of Versailles*, 26 Oct. 2016, en.chateauversailles.fr/discover/history/key-dates/hot-chocolate-versailles. Accessed 13 Oct. 2026.",
+    "Labat, Jean-Baptiste. *Nouveau Voyage Aux Isles De l’Amérique ...* Ch. J.B. Delespine, 1742, archive.org/details/nouveauvoyageau04laba. Accessed 13 Oct. 2026.",
+    "“Nantes and the Atlantic Slave Trade.” *Google Arts & Culture*, artsandculture.google.com/story/nantes-and-the-atlantic-slave-trade-ch%C3%A2teau-des-ducs-de-bretagne/8gUxHNkP-SnbIQ?hl=en. Accessed 13 Oct. 2026.",
+    "Prinz, D. “That Time Jews Smuggled Chocolate to France — and a Recipe for Basque Chocolate Cake.” *On the Chocolate Trail*, 14 July 2016, onthechocolatetrail.org/2016/07/that-time-jews-smuggled-chocolate-to-france-and-a-recipe-for-basque-chocolate-cake/. Accessed 13 Oct. 2026.",
+    "WTOP Staff. “What to Know About Code Noir, a Shocking French Law That Oversaw the Slavery of 1.4 Million Africans.” *WTOP News*, 28 May 2026, wtop.com/world/2026/05/what-to-know-about-code-noir-a-shocking-french-law-that-oversaw-the-slavery-of-1-4-million-africans/. Accessed 13 Oct. 2026."
+  ],
+
+  "generalSources": []
 }
