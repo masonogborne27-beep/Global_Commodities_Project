@@ -124,10 +124,10 @@
     {
       "id": "nantes",
       "order": 2,
-      "title": "TODO: title for the Nantes stop",
+      "title": "Nantes",
       "place": "Nantes, France",
-      "dateRange": "TODO: date range",
-      "yearLabel": "c. TODO",
+      "dateRange": "18th Century (c. 1700-1790)",
+      "yearLabel": "c. 1700-1790",
       "coordinates": [-1.554, 47.218],
       "zoom": 800,
       "frame": [[-2.45, 46.95], [-1.2, 47.45]],
@@ -211,32 +211,11 @@
         "hotspots": []
       },
       "narrative": [
-        "TODO: narrative paragraph 1 about the French slave-trading voyages that departed from Nantes",
-        "TODO: narrative paragraph 2 about ___"
+        "Nantes, France was the main port in France where ships departed from to head out towards Western Africa to engage in the Atlantic Slave Trade. An enslaved person's life expectancy working on a French colony was around twenty years, as a result many trips to West Africa were made in order to keep up with the necessary labor to meet growing demands. Ships would leave the port with goods such as gunpowder, weapons, textiles, utensils, and tobacco, which would then be traded with African rulers and merchants in exchange for slaves."
       ],
-      "images": [
-        {
-          "src": "assets/images/placeholder-landscape.svg",
-          "alt": "TODO: describe what the image shows for screen-reader users",
-          "caption": "TODO: caption",
-          "credit": "TODO: artist / collection / source",
-          "license": "TODO: e.g. Public domain"
-        },
-        {
-          "src": "assets/images/placeholder-landscape.svg",
-          "alt": "TODO: describe what the image shows for screen-reader users",
-          "caption": "TODO: caption",
-          "credit": "TODO: artist / collection / source",
-          "license": "TODO: e.g. Public domain"
-        }
-      ],
-      "traded": {
-        "goodsOut": ["TODO: ___"],
-        "goodsIn": ["TODO: ___"]
-      },
-      "globalization": "TODO: connection to globalization for Nantes",
+      "globalization": "This port allowed France to prepare and send out ships that would acquire the forced labor they used to fuel the globalization of goods. This was their main connection point to Africa and the starting point for their system of global trade and exploitation.",
       "sources": [
-        { "citation": "TODO: full citation", "url": "" }
+        { "citation": "Château des ducs de Bretagne, \"Nantes and the Atlantic Slave Trade,\" Google Arts & Culture", "url": "https://artsandculture.google.com/story/nantes-and-the-atlantic-slave-trade-ch%C3%A2teau-des-ducs-de-bretagne/8gUxHNkP-SnbIQ?hl=en" }
       ]
     },
 
