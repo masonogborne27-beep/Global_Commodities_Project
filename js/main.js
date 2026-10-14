@@ -1479,11 +1479,30 @@
     return el('aside', { class: 'callout' }, el('h3', null, title), paragraphs(body));
   }
 
+  // A citation as text, with *asterisks* shown in italics (titles of books,
+  // journals and websites) and web addresses turned into links.
+  const URL_RE = /((?:https?:\/\/)?(?:www\.)?[a-z0-9-]+(?:\.[a-z0-9-]+)+\/[^\s]*[^\s.,])/gi;
+  function citation(str) {
+    const parts = [];
+    String(str).split(/(\*[^*]+\*)/).forEach((chunk, i) => {
+      if (!chunk) return;
+      if (i % 2) { parts.push(el('em', null, chunk.slice(1, -1))); return; }
+      chunk.split(URL_RE).forEach((bit, j) => {
+        if (!bit) return;
+        if (j % 2) {
+          const href = /^https?:/i.test(bit) ? bit : `https://${bit}`;
+          parts.push(el('a', { href, target: '_blank', rel: 'noopener noreferrer' }, bit));
+        } else parts.push(text(bit));
+      });
+    });
+    return parts;
+  }
+
   function sourceItem(src) {
-    if (typeof src === 'string') return el('li', null, src);
+    if (typeof src === 'string') return el('li', null, citation(src));
     if (!src) return null;
     return el('li', null,
-      text(src.citation || src.title || ''),
+      citation(src.citation || src.title || ''),
       src.url ? [' ', el('a', { href: src.url, target: '_blank', rel: 'noopener noreferrer' }, 'Link')] : null);
   }
 
@@ -1601,6 +1620,13 @@
   function buildSources() {
     const body = els.sourcesBody;
     body.replaceChildren();
+
+    // The full works cited list (MLA), then each stop's own sources.
+    const cited = asArray(state.data.worksCited);
+    if (cited.length) {
+      body.append(el('h3', null, 'Works Cited'), el('ul', { class: 'source-list works-cited' }, cited.map(sourceItem)));
+      body.append(el('h3', { class: 'sources-by-stop' }, 'Sources by stop'));
+    }
 
     state.stops.forEach((stop) => {
       const sources = asArray(stop.sources);

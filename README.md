@@ -36,6 +36,7 @@ Any text that starts with `TODO` shows up **highlighted in yellow** on the site.
 | `intro` | The opening title card: `title`, `subtitle`, `question`, `authors`, `buttonLabel`, and the starting `yearLabel`. |
 | `stops` | The stops, in order (plus any hidden placeholders). |
 | `conclusion` | The closing panel shown with the full network: `title`, `yearLabel`, `narrative`, `thesis`, `sources` (and optional `images`). |
+| `worksCited` | The full works cited list (one MLA entry per item), shown first in the **Sources** dialog. Put `*asterisks*` around titles to show them in italics; web addresses become links automatically. |
 | `generalSources` | Sources for the whole project that don't belong to one stop. |
 
 ### One stop, field by field
