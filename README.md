@@ -4,7 +4,7 @@ An animated world map that follows cacao and chocolate through the French empire
 
 > How did early modern empires help create and shape a globalized economy?
 
-Our case study is French cacao production in Martinique. The viewer follows six stops in order: Saint-Pierre, Martinique (introduction) → Nantes, where French slave-trading voyages departed → West Africa (Gorée) → back to Saint-Pierre for enslaved labor and cacao production → Bayonne, where Martinique's cacao arrived and was made into chocolate → Versailles, where it was drunk at court. At the end, the map zooms out to show the whole trade network.
+Our case study is French cacao production in Martinique. The viewer follows six stops in order: Saint-Pierre, Martinique (introduction) → Nantes, where French slave-trading voyages departed → West Africa (Gorée) → back to Saint-Pierre for enslaved labor and cacao production → Bayonne, where Martinique's cacao arrived and was made into chocolate → Versailles, where it was drunk at court. At the end, the map zooms out to show the whole trade network (there is no closing panel; the hint offers "Start over").
 
 It is a plain HTML/CSS/JavaScript site with no build step, so it runs on GitHub Pages as-is.
 
@@ -35,7 +35,6 @@ Any text that starts with `TODO` shows up **highlighted in yellow** on the site.
 |---|---|
 | `intro` | The opening title card: `title`, `subtitle`, `question`, `authors`, `buttonLabel`, and the starting `yearLabel`. |
 | `stops` | The stops, in order (plus any hidden placeholders). |
-| `conclusion` | The closing panel shown with the full network: `title`, `yearLabel`, `narrative`, `thesis`, `sources` (and optional `images`). |
 | `generalSources` | Sources for the whole project that don't belong to one stop. |
 
 ### One stop, field by field

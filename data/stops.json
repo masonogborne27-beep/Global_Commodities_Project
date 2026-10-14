@@ -406,7 +406,7 @@
       "zoom": 800,
       "frame": [[1.95, 48.72], [2.3, 48.89]],
       "markers": [
-        { "id": "versailles", "name": "Versailles", "coordinates": [2.120, 48.805], "labelPosition": "left" }
+        { "id": "versailles", "name": "Versailles", "coordinates": [2.120, 48.805], "labelPosition": "right" }
       ],
       "scene": {
         "image": "assets/images/versailles-chocolate-scene.jpg",
@@ -478,17 +478,6 @@
       ]
     }
   ],
-
-  "conclusion": {
-    "title": "TODO: title for the closing summary",
-    "yearLabel": "1450–1800",
-    "narrative": [
-      "TODO: closing paragraph 1 summarizing the whole network",
-      "TODO: closing paragraph 2"
-    ],
-    "thesis": "TODO: your thesis answering the central question",
-    "sources": []
-  },
 
 
   "generalSources": []
