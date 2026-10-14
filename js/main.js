@@ -1451,17 +1451,11 @@
     }));
   }
 
+  // Just the button that reopens the scene; its title and AI note are shown
+  // over the picture itself.
   function sceneSection(stop) {
-    const sc = stop.scene;
-    if (!sc) return null;
-    const creditBits = [];
-    if (sc.credit) creditBits.push('Credit: ', text(sc.credit));
-    if (sc.license) creditBits.push(creditBits.length ? ' · ' : '', 'License: ', text(sc.license));
-    if (sc.sourceUrl) creditBits.push(' ', el('a', { href: sc.sourceUrl, target: '_blank', rel: 'noopener noreferrer' }, 'Source'));
+    if (!stop.scene) return null;
     return el('section', { class: 'scene-section' },
-      el('h3', null, 'The scene'),
-      sc.caption ? el('p', null, sc.caption) : null,
-      creditBits.length ? el('p', { class: 'credit' }, creditBits) : null,
       el('button', {
         type: 'button',
         class: 'btn btn-secondary',
