@@ -263,7 +263,14 @@
       if (s.id) state.hiddenRefs.add(String(s.id));
       asArray(s.markers).forEach((m) => { if (m && m.id) state.hiddenRefs.add(String(m.id)); if (m && m.name) state.hiddenRefs.add(String(m.name).toLowerCase()); });
     });
-    const raw = all.filter((s) => s && !s.hidden);
+    // A stop with "sameAs": "<stop id>" is a return visit: it shows exactly
+    // the same place, text and scene as that stop, as a later step in the tour.
+    const byId = new Map(all.filter((s) => s && s.id).map((s) => [s.id, s]));
+    const raw = all.filter((s) => s && !s.hidden).map((s) => {
+      const same = s.sameAs && byId.get(s.sameAs);
+      if (!same) return s;
+      return { ...JSON.parse(JSON.stringify(same)), id: s.id, order: s.order, sameAs: s.sameAs };
+    });
     if (!raw.length) throw new Error('data/stops.json has no "stops" list.');
 
     state.stops = raw
@@ -1626,6 +1633,7 @@
     const real = (src) => src && !isTodo(typeof src === 'string' ? src : src.citation || src.title || '');
     const key = (src) => String(typeof src === 'string' ? src : src.citation || src.title || '').replace(/^[^a-z0-9]+/i, '').toLowerCase();
     const byStop = state.stops
+      .filter((stop) => !stop.sameAs) // a return visit shares its sources with the first visit
       .map((stop) => ({ stop, list: asArray(stop.sources).filter(real).sort((x, y) => key(x).localeCompare(key(y))) }))
       .filter((g) => g.list.length);
     if (byStop.length) {
