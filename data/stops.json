@@ -456,10 +456,10 @@
     {
       "id": "versailles",
       "order": 6,
-      "title": "TODO: title for the Versailles stop",
+      "title": "Versailles",
       "place": "Versailles, France",
-      "dateRange": "TODO: date range",
-      "yearLabel": "c. TODO",
+      "dateRange": "1680-1790",
+      "yearLabel": "1680-1790",
       "coordinates": [2.120, 48.805],
       "zoom": 800,
       "frame": [[1.95, 48.72], [2.3, 48.89]],
@@ -526,32 +526,13 @@
         "hotspots": []
       },
       "narrative": [
-        "TODO: narrative paragraph 1 about chocolate at the French court in Versailles",
-        "TODO: narrative paragraph 2 about ___"
+        "After the Royal Court moved to Versailles in 1682 it quickly became the center of demand for cacao. King Louis XIV and his wife were known to enjoy the product. He had previously granted David Chaillou a royal monopoly and the sole privilege of manufacturing and selling chocolate in 1652. Through mercantilism, the French crown was able to remain in control of the trade of a good that was only consumed by elites, showing the power that a small group of individuals held over a globalized economy."
       ],
-      "images": [
-        {
-          "src": "assets/images/placeholder-landscape.svg",
-          "alt": "TODO: describe what the image shows for screen-reader users",
-          "caption": "TODO: caption",
-          "credit": "TODO: artist / collection / source",
-          "license": "TODO: e.g. Public domain"
-        },
-        {
-          "src": "assets/images/placeholder-portrait.svg",
-          "alt": "TODO: describe what the image shows for screen-reader users",
-          "caption": "TODO: caption",
-          "credit": "TODO: artist / collection / source",
-          "license": "TODO: e.g. Public domain"
-        }
-      ],
-      "traded": {
-        "goodsOut": ["TODO: ___"],
-        "goodsIn": ["TODO: ___"]
-      },
-      "globalization": "TODO: connection to globalization for Versailles",
+      "globalization": "The demand, however, was first only from the wealthy, meaning the cost of growing, harvesting, and then shipping cacao was difficult to profit from. The trade was made worthwhile by the fact that French planters in Martinique relied on enslaved people from Africa. In the late 1600s, the majority of the people on the island were enslaved people, keeping the cost of producing Cacao low and allowing planters and merchants to profit. King Louis XIV reinforced this system by signing the Code Noir in 1685, a law that defined enslaved peoples within the French colonies as property and gave royal approval to the plantation owners in the colonies. In this way, the hot chocolate enjoyment of the nobility depended on the backs of enslaved people suffering in Martinique.",
       "sources": [
-        { "citation": "TODO: full citation", "url": "" }
+        { "citation": "Château de Versailles, \"Hot chocolate at Versailles\" (Key dates)", "url": "https://en.chateauversailles.fr/discover/history/key-dates/hot-chocolate-versailles" },
+        { "citation": "WTOP, \"What to know about Code Noir, a shocking French law that oversaw the slavery of 1.4 million Africans\" (May 2026)", "url": "https://wtop.com/world/2026/05/what-to-know-about-code-noir-a-shocking-french-law-that-oversaw-the-slavery-of-1-4-million-africans/" },
+        { "citation": "Morning Star (more info on its royal ties)", "url": "https://morningstaronline.co.uk/node/249879" }
       ]
     },
 
