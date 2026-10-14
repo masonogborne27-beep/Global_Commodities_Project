@@ -62,7 +62,7 @@ Any text that starts with `TODO` shows up **highlighted in yellow** on the site.
     "importance": "Why is this primary source important?"
   },
   "globalization": "The 'Connection to globalization' box",
-  "sources": [                     // listed in the Sources dialog, not in the panel
+  "sources": [                     // shown at the bottom of this stop's panel
     { "citation": "Author. Title. Publisher, Year.", "url": "https://…" }
   ]
 }
@@ -79,7 +79,7 @@ Any text that starts with `TODO` shows up **highlighted in yellow** on the site.
 - **How the camera moves.** For a new stop, the map first shows the whole route being drawn (with the ship sailing on sea routes), then flies in close on the place.
 - **`frame`** (optional) lists extra `[longitude, latitude]` points the close-up must include. Martinique's frame is two opposite corners around the whole island, so you see the island, not just the town. Without a `frame`, the close-up fits the stop's markers.
 - **`zoom`** is an upper limit on the close-up. Around `8` shows a region, `150` shows a stretch of coast, and `600`–`800` shows a single island or city.
-- **The explainer panel** shows, in order: the stop's `title`, its `place` and `dateRange`, the `narrative` paragraph(s), the "Firsthand account" (if the stop has a `firsthand`), the "Connection to globalization" box, and a "View the scene" button if the stop has a scene. Its `sources` don't appear in the panel; they're listed under that stop in the **Sources** dialog (top right).
+- **The explainer panel** shows, in order: the stop's `title`, its `place` and `dateRange`, the `narrative` paragraph(s), the "Firsthand account" (if the stop has a `firsthand`), the "Connection to globalization" box, the stop's `sources`, and a "View the scene" button if the stop has a scene. The **Sources** dialog (top right) holds the full `worksCited` list and the image credits.
 - **`narrative`** is a list, and each item becomes one paragraph.
 - **`sources`** entries can be `{ "citation": "…", "url": "…" }` or just a plain text string. `url` can be left as `""`.
 - **To reorder, add, or remove stops**, change the `order` numbers or add or delete whole `{ … }` stop blocks. The "Stop X of Y" counter and the Next buttons update automatically.

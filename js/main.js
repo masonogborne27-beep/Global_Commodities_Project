@@ -1531,11 +1531,12 @@
       el('h2', { class: 'panel-title', id: 'panel-title', tabindex: '-1' }, stop.title || stop.place || ''),
       metaLine(stop.place, stop.dateRange),
       el('div', { class: 'panel-rule', 'aria-hidden': 'true' }),
-      // The explainer: title, date, paragraph(s) and the connection to
-      // globalization. A stop's sources are listed in the Sources dialog.
+      // The explainer: title, date, paragraph(s), firsthand account, the
+      // connection to globalization and the stop's own sources.
       el('div', { class: 'narrative' }, paragraphs(stop.narrative)),
       firsthandSection(stop.firsthand),
       callout('Connection to globalization', stop.globalization),
+      sourcesSection('Sources', stop.sources),
       sceneSection(stop)
     );
 
@@ -1621,30 +1622,26 @@
     const body = els.sourcesBody;
     body.replaceChildren();
 
-    // The full works cited list (MLA), then each stop's own sources.
+    // The full works cited list (MLA). Each stop's own sources are shown in
+    // that stop's panel instead.
     const cited = asArray(state.data.worksCited);
     if (cited.length) {
       body.append(el('h3', null, 'Works Cited'), el('ul', { class: 'source-list works-cited' }, cited.map(sourceItem)));
-      body.append(el('h3', { class: 'sources-by-stop' }, 'Sources by stop'));
     }
 
+    // Credits for the pictures (the scenes and any other images).
+    const images = [];
     state.stops.forEach((stop) => {
-      const sources = asArray(stop.sources);
-      const images = asArray(stop.images).filter((img) => img && img.src && !/placeholder-/.test(img.src));
-      body.append(el('h3', null, `${stop.index + 1}. `, text(stop.place || stop.title || '')));
-      if (sources.length) {
-        body.append(el('h4', null, 'Sources'), el('ol', { class: 'source-list' }, sources.map(sourceItem)));
-      }
-      if (stop.scene) images.push({ ...stop.scene, src: stop.scene.image, caption: `Scene: ${stop.scene.title || stop.scene.image}` });
-      if (images.length) {
-        body.append(el('h4', null, 'Image credits'), el('ul', { class: 'source-list' }, images.map((img) =>
-          el('li', null,
-            text(img.caption || img.alt || img.src), ': ',
-            text(img.credit || 'credit missing'), ' (', text(img.license || 'license missing'), ')',
-            img.sourceUrl ? [' ', el('a', { href: img.sourceUrl, target: '_blank', rel: 'noopener noreferrer' }, 'Source')] : null))));
-      }
-      if (!sources.length && !images.length) body.append(el('p', null, 'No sources listed yet.'));
+      asArray(stop.images).filter((img) => img && img.src && !/placeholder-/.test(img.src)).forEach((img) => images.push(img));
+      if (stop.scene) images.push({ ...stop.scene, src: stop.scene.image, caption: stop.scene.title || stop.place });
     });
+    if (images.length) {
+      body.append(el('h3', null, 'Image credits'), el('ul', { class: 'source-list' }, images.map((img) =>
+        el('li', null,
+          text(img.caption || img.alt || img.src), ': ',
+          text(img.credit || 'credit missing'), ' (', text(img.license || 'license missing'), ')',
+          img.sourceUrl ? [' ', el('a', { href: img.sourceUrl, target: '_blank', rel: 'noopener noreferrer' }, 'Source')] : null))));
+    }
 
     const c = state.data.conclusion || {};
     const cImages = asArray(c.images).filter((img) => img && img.src);

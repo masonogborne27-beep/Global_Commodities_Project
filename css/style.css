@@ -723,7 +723,6 @@ body.panel-open .compass { transform: translateX(calc(-1 * var(--panel-w))); }
 /* MLA style: no bullets, hanging indent. */
 .works-cited { list-style: none; padding-left: 0; }
 .works-cited li { padding-left: 2em; text-indent: -2em; margin-bottom: 10px; }
-.sources-by-stop { margin-top: 26px; }
 
 .todo {
   background: var(--todo-bg);
