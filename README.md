@@ -36,7 +36,6 @@ Any text that starts with `TODO` shows up **highlighted in yellow** on the site.
 | `intro` | The opening title card: `title`, `subtitle`, `question`, `authors`, `buttonLabel`, and the starting `yearLabel`. |
 | `stops` | The stops, in order (plus any hidden placeholders). |
 | `conclusion` | The closing panel shown with the full network: `title`, `yearLabel`, `narrative`, `thesis`, `sources` (and optional `images`). |
-| `worksCited` | The full works cited list (one MLA entry per item), shown first in the **Sources** dialog. Put `*asterisks*` around titles to show them in italics; web addresses become links automatically. |
 | `generalSources` | Sources for the whole project that don't belong to one stop. |
 
 ### One stop, field by field
@@ -62,7 +61,7 @@ Any text that starts with `TODO` shows up **highlighted in yellow** on the site.
     "importance": "Why is this primary source important?"
   },
   "globalization": "The 'Connection to globalization' box",
-  "sources": [                     // shown at the bottom of this stop's panel
+  "sources": [                     // this stop's Works Cited entries, shown in the Sources dialog
     { "citation": "Author. Title. Publisher, Year.", "url": "https://…" }
   ]
 }
@@ -73,15 +72,15 @@ Any text that starts with `TODO` shows up **highlighted in yellow** on the site.
 **Coordinates are `[longitude, latitude]`**, in that order. This is the opposite of how Google Maps shows them. West longitudes and south latitudes are negative. Example: Paris is `[2.352, 48.857]`.
 
 - **Several places in one stop.** A stop can list several `markers` (for example, a city and a nearby town). Clicking any of them opens the same panel. The map zooms to fit all of that stop's markers. To add a place, add another `{ "id", "name", "coordinates" }` entry.
-- **Returning to a place.** Stop 4 goes back to Saint-Pierre. Its marker is just `{ "id": "saint-pierre" }`, the id of stop 1's marker, so both stops share one pin instead of two pins on top of each other. The pin opens whichever of its stops is next (or current); after the tour, it opens the later visit.
+- **Returning to a place.** Stop 4 goes back to Saint-Pierre. It is just `{ "id": "martinique-labor", "order": 4, "sameAs": "martinique" }`: `sameAs` makes it show exactly the same pin, explainer and scene as stop 1, as a later step in the tour (the route from West Africa draws when you get there). Edit stop 1 and both visits change. The shared pin opens whichever visit is next (or current); after the tour, it opens the later one.
 - **Placeholder stops.** Add `"hidden": true` to a stop to keep it in the file without showing it (for example, a stop you are still writing). Routes to or from a hidden stop wait too. Delete the line, and give the stop an `order`, to bring it back.
 - **`labelPosition`** can be `"left"`, `"right"`, `"top"`, or `"bottom"`. Use it if a place name covers something.
 - **How the camera moves.** For a new stop, the map first shows the whole route being drawn (with the ship sailing on sea routes), then flies in close on the place.
 - **`frame`** (optional) lists extra `[longitude, latitude]` points the close-up must include. Martinique's frame is two opposite corners around the whole island, so you see the island, not just the town. Without a `frame`, the close-up fits the stop's markers.
 - **`zoom`** is an upper limit on the close-up. Around `8` shows a region, `150` shows a stretch of coast, and `600`–`800` shows a single island or city.
-- **The explainer panel** shows, in order: the stop's `title`, its `place` and `dateRange`, the `narrative` paragraph(s), the "Firsthand account" (if the stop has a `firsthand`), the "Connection to globalization" box, the stop's `sources`, and a "View the scene" button if the stop has a scene. The **Sources** dialog (top right) holds the full `worksCited` list and the image credits.
+- **The explainer panel** shows, in order: the stop's `title`, its `place` and `dateRange`, the `narrative` paragraph(s), the "Firsthand account" (if the stop has a `firsthand`), the "Connection to globalization" box, and a "View the scene" button if the stop has a scene. The stop's `sources` don't appear in the panel: the **Sources** dialog (top right) shows them as the Works Cited, grouped under each stop, followed by the image credits.
 - **`narrative`** is a list, and each item becomes one paragraph.
-- **`sources`** entries can be `{ "citation": "…", "url": "…" }` or just a plain text string. `url` can be left as `""`.
+- **`sources`** entries are full citations (MLA). Put `*asterisks*` around titles to show them in italics; web addresses become links automatically. Entries starting with "TODO" are not shown. They can be `{ "citation": "…", "url": "…" }` or just a plain text string. `url` can be left as `""`.
 - **To reorder, add, or remove stops**, change the `order` numbers or add or delete whole `{ … }` stop blocks. The "Stop X of Y" counter and the Next buttons update automatically.
 
 ### JSON rules that trip people up
