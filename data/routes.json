@@ -19,29 +19,21 @@
       "via": [[-17.8, 14.52], [-19.5, 14.9], [-30, 16.6], [-48, 17.2]]
     },
     {
-      "id": "martinique-bordeaux",
+      "id": "martinique-bayonne",
       "from": "saint-pierre",
-      "to": "bordeaux",
+      "to": "bayonne",
       "type": "ocean",
       "goods": ["TODO: goods carried"],
-      "revealedAt": "bordeaux",
-      "via": [[-52, 22], [-34, 35], [-14, 44.6], [-2.5, 45.5]]
+      "revealedAt": "bayonne",
+      "via": [[-52, 22], [-34, 33], [-14, 42], [-4, 43.7]]
     },
     {
-      "id": "bordeaux-versailles",
-      "from": "bordeaux",
+      "id": "bayonne-versailles",
+      "from": "bayonne",
       "to": "versailles",
       "type": "land",
       "goods": ["TODO: goods carried"],
       "revealedAt": "versailles"
-    },
-    {
-      "id": "bordeaux-paris",
-      "from": "bordeaux",
-      "to": "paris",
-      "type": "land",
-      "goods": ["TODO: goods carried"],
-      "revealedAt": "paris"
     }
   ]
 }

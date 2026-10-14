@@ -4,7 +4,7 @@ An animated world map that follows cacao and chocolate through the French empire
 
 > How did early modern empires help create and shape a globalized economy?
 
-Our case study is French cacao production in Martinique. The viewer follows seven stops in order: Saint-Pierre, Martinique (introduction) → Nantes, where French slave-trading voyages departed → West Africa (Gorée) → back to Saint-Pierre for enslaved labor and cacao production → Bordeaux, where Martinique's cacao arrived in France → Versailles, where it was drunk at court → Paris. At the end, the map zooms out to show the whole trade network.
+Our case study is French cacao production in Martinique. The viewer follows six stops in order: Saint-Pierre, Martinique (introduction) → Nantes, where French slave-trading voyages departed → West Africa (Gorée) → back to Saint-Pierre for enslaved labor and cacao production → Bayonne, where Martinique's cacao arrived and was made into chocolate → Versailles, where it was drunk at court. At the end, the map zooms out to show the whole trade network.
 
 It is a plain HTML/CSS/JavaScript site with no build step, so it runs on GitHub Pages as-is.
 
@@ -111,7 +111,7 @@ Each route is one animated line on the map.
 
 - **Direction matters.** The arrowhead (and the ship) travels from `from` to `to`, so you can show the real direction of trade, even when the tour visits the places in a different order.
 - **`revealedAt`** decides which stop draws the route. Several routes can share a stop, and they all draw at once.
-- **`via`** lets you steer a sea route around land. The Gorée → Nantes and Gorée → Bordeaux routes use it to go around Spain. When `via` is used, `bend` is ignored.
+- **`via`** lets you steer a sea route around land. The sea routes use it to stay in open water, around Africa's bulge and into the Bay of Biscay. When `via` is used, `bend` is ignored.
 - **A place that isn't a stop** (for example, a Spanish American port) can be a route end. Write `[longitude, latitude]` instead of a marker id, or `{ "name": "Veracruz", "coordinates": [-96.13, 19.19] }` so its name shows in the panel.
 - The goods for each route are listed in that stop's panel under "Routes shown here".
 
@@ -121,7 +121,7 @@ Each route is one animated line on the map.
 
 A stop can end with a **scene**: clicking the stop flies in to the island and keeps going without stopping, until a full-screen picture grows out of the scene's spot on the map. The picture drifts slowly, has pulsing hotspots the viewer can click for a short note, a caption with its title and the AI-illustration note, and a "Back to the map" button (Esc also works). A "View the scene" button in the panel opens it again.
 
-The Martinique, Nantes, Gorée, Bordeaux, Versailles and Paris scenes are **AI-generated illustrations** made for this project (in Canva, styled after William Clark's 1823 Antigua prints). Each caption says plainly that it is a modern illustration and not a historical source. They are `assets/images/martinique-cacao-scene.jpg`, `assets/images/nantes-quay-scene.jpg`, `assets/images/goree-harbour-scene.jpg`, `assets/images/bordeaux-port-scene.jpg`, `assets/images/versailles-chocolate-scene.jpg` and `assets/images/paris-chocolate-shop-scene.jpg`, and all are animated in the browser (see `animate` below). A stop with several places has one scene; its `coordinates` say which place the camera dives into.
+The Martinique, Nantes, Gorée, Bayonne and Versailles scenes are **AI-generated illustrations** made for this project (in Canva, styled after William Clark's 1823 Antigua prints). Each caption says plainly that it is a modern illustration and not a historical source. They are `assets/images/martinique-cacao-scene.jpg`, `assets/images/nantes-quay-scene.jpg`, `assets/images/goree-harbour-scene.jpg`, `assets/images/bordeaux-port-scene.jpg` (used for Bayonne) and `assets/images/versailles-chocolate-scene.jpg`, and all are animated in the browser (see `animate` below). A stop with several places has one scene; its `coordinates` say which place the camera dives into.
 
 Add a `scene` block to the stop in `data/stops.json`:
 
