@@ -1531,12 +1531,11 @@
       el('h2', { class: 'panel-title', id: 'panel-title', tabindex: '-1' }, stop.title || stop.place || ''),
       metaLine(stop.place, stop.dateRange),
       el('div', { class: 'panel-rule', 'aria-hidden': 'true' }),
-      // The explainer: title, date, paragraph(s), firsthand account, the
-      // connection to globalization and the stop's own sources.
+      // The explainer: title, date, paragraph(s), firsthand account and the
+      // connection to globalization. Sources are in the Sources dialog.
       el('div', { class: 'narrative' }, paragraphs(stop.narrative)),
       firsthandSection(stop.firsthand),
       callout('Connection to globalization', stop.globalization),
-      sourcesSection('Sources', stop.sources),
       sceneSection(stop)
     );
 
@@ -1622,11 +1621,18 @@
     const body = els.sourcesBody;
     body.replaceChildren();
 
-    // The full works cited list (MLA). Each stop's own sources are shown in
-    // that stop's panel instead.
-    const cited = asArray(state.data.worksCited);
-    if (cited.length) {
-      body.append(el('h3', null, 'Works Cited'), el('ul', { class: 'source-list works-cited' }, cited.map(sourceItem)));
+    // Works cited, grouped by stop (MLA: alphabetical, hanging indent). Placeholder
+    // ("TODO") entries are left out, and a stop with none is skipped.
+    const real = (src) => src && !isTodo(typeof src === 'string' ? src : src.citation || src.title || '');
+    const key = (src) => String(typeof src === 'string' ? src : src.citation || src.title || '').replace(/^[^a-z0-9]+/i, '').toLowerCase();
+    const byStop = state.stops
+      .map((stop) => ({ stop, list: asArray(stop.sources).filter(real).sort((x, y) => key(x).localeCompare(key(y))) }))
+      .filter((g) => g.list.length);
+    if (byStop.length) {
+      body.append(el('h3', null, 'Works Cited'));
+      byStop.forEach(({ stop, list }) => body.append(
+        el('h4', { class: 'cited-stop' }, `${stop.index + 1}. `, text(stop.title || stop.place || '')),
+        el('ul', { class: 'source-list works-cited' }, list.map(sourceItem))));
     }
 
     // Credits for the pictures (the scenes and any other images).
