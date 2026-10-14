@@ -74,7 +74,7 @@ Any text that starts with `TODO` shows up **highlighted in yellow** on the site.
 - **How the camera moves.** For a new stop, the map first shows the whole route being drawn (with the ship sailing on sea routes), then flies in close on the place.
 - **`frame`** (optional) lists extra `[longitude, latitude]` points the close-up must include. Martinique's frame is two opposite corners around the whole island, so you see the island, not just the town. Without a `frame`, the close-up fits the stop's markers.
 - **`zoom`** is an upper limit on the close-up. Around `8` shows a region, `150` shows a stretch of coast, and `600`–`800` shows a single island or city.
-- **The explainer panel** shows, in order: the stop's `title`, its `place` and `dateRange`, the `narrative` paragraph(s), the "Connection to globalization" box, and the scene button. Its `sources` don't appear in the panel; they're listed under that stop in the **Sources** dialog (top right).
+- **The explainer panel** shows, in order: the stop's `title`, its `place` and `dateRange`, the `narrative` paragraph(s), the "Connection to globalization" box, and a "View the scene" button if the stop has a scene. Its `sources` don't appear in the panel; they're listed under that stop in the **Sources** dialog (top right).
 - **`narrative`** is a list, and each item becomes one paragraph.
 - **`sources`** entries can be `{ "citation": "…", "url": "…" }` or just a plain text string. `url` can be left as `""`.
 - **To reorder, add, or remove stops**, change the `order` numbers or add or delete whole `{ … }` stop blocks. The "Stop X of Y" counter and the Next buttons update automatically.
@@ -164,7 +164,7 @@ Add a `scene` block to the stop in `data/stops.json`:
 - **`pan`** (optional) is the slow drift: it moves from the point `from` to the point `to`, zooming from `zoomFrom` to `zoomTo`, over `seconds`, then back. Points are fractions of the picture, `[across, down]`, so `[0, 0]` is the top-left corner and `[1, 1]` the bottom-right. Leave `pan` out for a still picture with a gentle breathe. Keep `zoomFrom` a little above 1 (e.g. `1.08`): as the cloud clears after the dive, the picture zooms in from filling the screen to that size, so the zoom carries on into the scene.
 - **`hotspots`** are the clickable pins, also placed as fractions of the picture. To find a position, open the image, note where the thing is as a share of the width and height, and round to two decimals. Each needs a `label` (shown under the pin) and `text` (shown when clicked).
 - Use a picture at least 1600 px wide so it stays sharp full-screen, and keep it under about 800 KB.
-- The credit and license appear in the panel's "The scene" section and in the **Sources** dialog automatically (not over the picture itself).
+- The credit and license appear in the **Sources** dialog automatically (not in the panel or over the picture). The scene's `caption` isn't shown on the site; it's a place to keep notes about the picture.
 
 ### Where to find a real picture
 

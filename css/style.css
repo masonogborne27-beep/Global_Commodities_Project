@@ -1188,7 +1188,6 @@ body.in-scene .compass,
 body.in-scene .hint { display: none; }
 body.in-scene .map { visibility: hidden; }
 
-.scene-section .credit { font-size: 14px; color: var(--ink-soft); }
 
 @media (max-width: 720px) {
   .scene-back,
